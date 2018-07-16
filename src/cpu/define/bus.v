@@ -17,3 +17,18 @@
 // coprocessor address bus
 `define CP0_ADDR_BUS            4:0
 `define CP0_ADDR_BUS_WIDTH      5
+
+// register bus
+`define REG_ADDR_BUS            4:0
+`define REG_ADDR_BUS_WIDTH      5
+
+`define INST_OP_BUS             5:0
+`define INST_OP_BUS_WIDTH       6
+
+`define FUNCT_BUS               5:0
+`define FUNCT_BUS_WIDTH         6
+`define SHAMT_BUS               4:0
+`define SHAMT_BUS_WIDTH         5
+
+`define STALL_BUS               5:0
+`define STALL_BUS_WIDTH         6
