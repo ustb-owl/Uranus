@@ -20,18 +20,18 @@ module RAM(
     reg[7:0] ram2[0:kSubRamSize - 1];
     reg[7:0] ram3[0:kSubRamSize - 1];
 
-    assign data_out[7:0] = !rst && en && !write_en && !addr[31:9] &&
+    assign data_out[7:0] = rst && en && !write_en && !addr[31:9] &&
             !addr[1:0] ? ram3[addr[31:2]] : 8'b0;
-    assign data_out[15: 8] = !rst && en && !write_en && !addr[31:9] &&
+    assign data_out[15: 8] = rst && en && !write_en && !addr[31:9] &&
             !addr[1:0] ? ram2[addr[31:2]] : 8'b0;
-    assign data_out[23:16] = !rst && en && !write_en && !addr[31:9] &&
+    assign data_out[23:16] = rst && en && !write_en && !addr[31:9] &&
             !addr[1:0] ? ram1[addr[31:2]] : 8'b0;
-    assign data_out[31:24] = !rst && en && !write_en && !addr[31:9] &&
+    assign data_out[31:24] = rst && en && !write_en && !addr[31:9] &&
             !addr[1:0] ? ram0[addr[31:2]] : 8'b0;
 
     reg inner_en;
     always @(posedge clk) begin
-        inner_en <= write_en && en && !rst;
+        inner_en <= write_en && en && rst;
     end
 
     always @(posedge inner_en) begin
