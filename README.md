@@ -1,9 +1,7 @@
-<p align="center">
-    <img src="Uranus.png" />
-</p>
+<div align="center">
+    <img src="Uranus.png" style="width:70%" />
+</div>
 
-<h1 align="center">Uranus</h1>
-
-***
+# Uranus
 
 Uranus is a project of MIPS processor written by MaxXing. For testing purposes only. 
