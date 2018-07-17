@@ -1,6 +1,3 @@
-// segment position
-`define SEG_FUNCT       5:0
-
 // shift
 `define FUNCT_SLL       6'b000000
 `define FUNCT_SRL       6'b000010

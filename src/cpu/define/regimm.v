@@ -1,6 +1,3 @@
-// segment position
-`define SEG_REGIMM      20:16
-
 // some branch instructions
 `define REGIMM_BLTZ     5'b00000
 `define REGIMM_BLTZAL   5'b10000

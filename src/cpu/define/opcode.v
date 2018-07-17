@@ -1,6 +1,3 @@
-// segment position
-`define SEG_OPCODE    31:26
-
 // r-type (SPECIAL)
 `define OP_SPECIAL    6'b000000
 
