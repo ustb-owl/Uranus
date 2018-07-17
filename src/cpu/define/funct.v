@@ -36,7 +36,7 @@
 `define FUNCT_SUB       6'b100010
 `define FUNCT_SUBU      6'b100011
 
-// logical
+// logic
 `define FUNCT_AND       6'b100100
 `define FUNCT_OR        6'b100101
 `define FUNCT_XOR       6'b100110

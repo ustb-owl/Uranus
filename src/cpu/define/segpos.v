@@ -3,6 +3,9 @@
 // opcode
 `define SEG_OPCODE   31:26
 
+// coprocessor
+`define SEG_CP0      25:21
+
 // register segment
 `define SEG_RS       25:21
 `define SEG_RT       20:16

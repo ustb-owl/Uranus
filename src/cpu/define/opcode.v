@@ -22,7 +22,7 @@
 `define OP_SLTI       6'b001010
 `define OP_SLTIU      6'b001011
 
-// logical
+// logic
 `define OP_ANDI       6'b001100
 `define OP_ORI        6'b001101
 `define OP_XORI       6'b001110
