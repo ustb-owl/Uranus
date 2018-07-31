@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module PiplineDeliver #(parameter width = 1) (
+module PipelineDeliver #(parameter width = 1) (
     input clk,
     input rst,
     input [width - 1:0] in,
