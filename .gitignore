@@ -37,5 +37,5 @@ Temporary Items
 build
 debug
 
-# output of assembler
-util/assembler/out
+# output of utilities
+util/*/out
