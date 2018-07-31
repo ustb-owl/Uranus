@@ -1,12 +1,11 @@
 import sys
 
-if len(sys.argv) != 2:
-    exit(1)
-
-path = sys.argv[1]
-asm_list = []
-with open(path, 'r') as file:
-    asm_list = file.readlines()
+'''
+usage:
+    $ python3 mips_asm.py asm.s
+    or
+    $ python3 mips_asm.py asm.s out.bin
+'''
 
 def getReg(reg):
     return int(reg.replace('$', ''))
@@ -18,10 +17,10 @@ def get32BitHex(num):
     chr_list = '0123456789abcdef'
     k = num
     s = ''
-    for _ in range(8):
-        s = chr_list[k & 15] + s
+    for i in range(8):
+        s = (' ' if i % 2 else '') + chr_list[k & 15] + s
         k >>= 4
-    return s
+    return s.strip()
 
 def encodeRTypeInst(l):
     op = 0b000000
@@ -117,7 +116,7 @@ def getHexAssembly(l):
         'j', 'jal'
     ]
     if l[0] == 'nop':
-        return '00000000'
+        return '00 00 00 00'
     elif l[0] in rtype:
         return encodeRTypeInst(l)
     elif l[0] in jtype:
@@ -125,8 +124,31 @@ def getHexAssembly(l):
     else:
         return encodeITypeInst(l)
 
+# judge the count of arguments
+if len(sys.argv) < 2:
+    exit(1)
+
+# read arguments
+path = sys.argv[1]
+if len(sys.argv) >= 3:
+    bin_path = sys.argv[2]
+else:
+    bin_path = path + '.bin'
+
+# read assembly file
+asm_list = []
+with open(path, 'r') as f:
+    asm_list = f.readlines()
+
+# generate bin file
+bin_data = ''
 for i in asm_list:
     asm = i.strip().lower().replace(',', ' ').split()
     asm_str = ' '.join(asm)
     asm = asm_str.split(' ')
-    print(getHexAssembly(asm) + '   // ' + asm_str)
+    bin_data += getHexAssembly(asm)
+    bin_data += '   // ' + asm_str + '\n'
+
+# output bin file
+with open(bin_path, 'w') as f:
+    f.write(bin_data)
