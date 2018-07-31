@@ -1,10 +1,10 @@
 `timescale 1ns / 1ps
 
-`include "bus.v"
-`include "segpos.v"
-`include "opcode.v"
-`include "regimm.v"
-`include "funct.v"
+`include "../../define/bus.v"
+`include "../../define/segpos.v"
+`include "../../define/opcode.v"
+`include "../../define/regimm.v"
+`include "../../define/funct.v"
 
 module ID(
     input rst,

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "bus.v"
+`include "define/bus.v"
 
 module RegFile(
     input clk,

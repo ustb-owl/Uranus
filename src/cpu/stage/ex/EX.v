@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
-`include "bus.v"
-`include "funct.v"
+`include "../../define/bus.v"
+`include "../../define/funct.v"
 
 module EX(
     input rst,
