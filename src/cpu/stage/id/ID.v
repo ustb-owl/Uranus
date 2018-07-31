@@ -19,7 +19,7 @@ module ID(
     output reg[`REG_ADDR_BUS] reg_addr_1,
     output reg[`REG_ADDR_BUS] reg_addr_2,
     // to EX stage
-    output [`FUNCT_BUS] funct,
+    output reg[`FUNCT_BUS] funct,
     output [`SHAMT_BUS] shamt,
     output reg[`DATA_BUS] operand_1,
     output reg[`DATA_BUS] operand_2,
