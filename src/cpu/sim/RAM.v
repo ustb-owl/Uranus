@@ -10,7 +10,7 @@ module RAM(
     input write_sel,
     input [`ADDR_BUS] addr,
     input [`DATA_BUS] data_in,
-    output [`DATA_BUS] data_out
+    output reg[`DATA_BUS] data_out
 );
 
     parameter kSubRamSize = 128;
@@ -20,14 +20,17 @@ module RAM(
     reg[7:0] ram2[0:kSubRamSize - 1];
     reg[7:0] ram3[0:kSubRamSize - 1];
 
-    assign data_out[7:0] = rst && en && !write_en && !addr[31:9] &&
-            !addr[1:0] ? ram3[addr[31:2]] : 8'b0;
-    assign data_out[15: 8] = rst && en && !write_en && !addr[31:9] &&
-            !addr[1:0] ? ram2[addr[31:2]] : 8'b0;
-    assign data_out[23:16] = rst && en && !write_en && !addr[31:9] &&
-            !addr[1:0] ? ram1[addr[31:2]] : 8'b0;
-    assign data_out[31:24] = rst && en && !write_en && !addr[31:9] &&
-            !addr[1:0] ? ram0[addr[31:2]] : 8'b0;
+    wire out_en = rst && en && !write_en;
+    always @(*) begin
+        data_out[7:0] = out_en && !addr[31:9] && !addr[1:0] ?
+                ram3[addr[31:2]] : 8'b0;
+        data_out[15: 8] = out_en && !addr[31:9] && !addr[1:0] ?
+                ram2[addr[31:2]] : 8'b0;
+        data_out[23:16] = out_en && !addr[31:9] && !addr[1:0] ?
+                ram1[addr[31:2]] : 8'b0;
+        data_out[31:24] = out_en && !addr[31:9] && !addr[1:0] ?
+                ram0[addr[31:2]] : 8'b0;
+    end
 
     reg inner_en;
     always @(posedge clk) begin
