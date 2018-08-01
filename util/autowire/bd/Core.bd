@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-<bd:repository xmlns:bd="http://www.xilinx.com/bd" bd:BoundaryCRC="0x824B0EC73B3B9A38" bd:device="xc7a200tfbg676-2" bd:isValidated="true" bd:synthFlowMode="Hierarchical" bd:tool_version="2017.3" bd:top="Core" bd:version="1.00.a">
+﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<bd:repository xmlns:bd="http://www.xilinx.com/bd" bd:BoundaryCRC="0x824B0EC73B3B9A38" bd:device="xc7a200tfbg676-2" bd:synthFlowMode="Hierarchical" bd:tool_version="2017.3" bd:top="Core" bd:version="1.00.a">
 
   <spirit:component xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009">
     <spirit:vendor>xilinx.com</spirit:vendor>
@@ -60,17 +60,6 @@
         <spirit:configurableElementValues>
           <spirit:configurableElementValue spirit:referenceId="bd:xciName">Core_IFID_0_0</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="bd:referenceName">IFID</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="bd:subInstancePath"></spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="bd:referenceType">hdl</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="bd:BoundaryCRC">0x0</spirit:configurableElementValue>
-        </spirit:configurableElementValues>
-      </spirit:componentInstance>
-      <spirit:componentInstance>
-        <spirit:instanceName>RegFile_0</spirit:instanceName>
-        <spirit:componentRef spirit:library="module_ref" spirit:name="RegFile" spirit:vendor="xilinx.com" spirit:version="1.0"/>
-        <spirit:configurableElementValues>
-          <spirit:configurableElementValue spirit:referenceId="bd:xciName">Core_RegFile_0_0</spirit:configurableElementValue>
-          <spirit:configurableElementValue spirit:referenceId="bd:referenceName">RegFile</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="bd:subInstancePath"></spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="bd:referenceType">hdl</spirit:configurableElementValue>
           <spirit:configurableElementValue spirit:referenceId="bd:BoundaryCRC">0x0</spirit:configurableElementValue>
@@ -153,6 +142,28 @@
           <spirit:configurableElementValue spirit:referenceId="bd:BoundaryCRC">0x0</spirit:configurableElementValue>
         </spirit:configurableElementValues>
       </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>RegFile_0</spirit:instanceName>
+        <spirit:componentRef spirit:library="module_ref" spirit:name="RegFile" spirit:vendor="xilinx.com" spirit:version="1.0"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">Core_RegFile_0_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:referenceName">RegFile</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:subInstancePath"></spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:referenceType">hdl</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:BoundaryCRC">0x0</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
+      <spirit:componentInstance>
+        <spirit:instanceName>RegReadProxy_0</spirit:instanceName>
+        <spirit:componentRef spirit:library="module_ref" spirit:name="RegReadProxy" spirit:vendor="xilinx.com" spirit:version="1.0"/>
+        <spirit:configurableElementValues>
+          <spirit:configurableElementValue spirit:referenceId="bd:xciName">Core_RegReadProxy_0_0</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:referenceName">RegReadProxy</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:subInstancePath"></spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:referenceType">hdl</spirit:configurableElementValue>
+          <spirit:configurableElementValue spirit:referenceId="bd:BoundaryCRC">0x0</spirit:configurableElementValue>
+        </spirit:configurableElementValues>
+      </spirit:componentInstance>
     </spirit:componentInstances>
     <spirit:adHocConnections>
       <spirit:adHocConnection>
@@ -160,23 +171,23 @@
         <spirit:externalPortReference spirit:portRef="clk"/>
         <spirit:internalPortReference spirit:componentRef="PC_0" spirit:portRef="clk"/>
         <spirit:internalPortReference spirit:componentRef="IFID_0" spirit:portRef="clk"/>
-        <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="clk"/>
         <spirit:internalPortReference spirit:componentRef="IDEX_0" spirit:portRef="clk"/>
         <spirit:internalPortReference spirit:componentRef="EXMEM_0" spirit:portRef="clk"/>
         <spirit:internalPortReference spirit:componentRef="MEMWB_0" spirit:portRef="clk"/>
+        <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="clk"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>rst_1</spirit:name>
         <spirit:externalPortReference spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="PC_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="IFID_0" spirit:portRef="rst"/>
-        <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="IDEX_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="EX_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="EXMEM_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="MEM_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="MEMWB_0" spirit:portRef="rst"/>
         <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="rst"/>
+        <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="rst"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>PC_0_rom_en</spirit:name>
@@ -238,21 +249,25 @@
         <spirit:name>ID_0_reg_addr_2</spirit:name>
         <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_addr_2"/>
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="read_addr_2"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="read_addr_2"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>ID_0_reg_addr_1</spirit:name>
         <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_addr_1"/>
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="read_addr_1"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="read_addr_1"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>ID_0_reg_read_en_2</spirit:name>
         <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_read_en_2"/>
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="read_en_2"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="read_en_2"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>ID_0_reg_read_en_1</spirit:name>
         <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_read_en_1"/>
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="read_en_1"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="read_en_1"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>IDEX_0_funct_out</spirit:name>
@@ -288,16 +303,19 @@
         <spirit:name>EX_0_result_out</spirit:name>
         <spirit:internalPortReference spirit:componentRef="EX_0" spirit:portRef="result_out"/>
         <spirit:internalPortReference spirit:componentRef="EXMEM_0" spirit:portRef="result_in"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="data_from_ex"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>EX_0_write_reg_en_out</spirit:name>
         <spirit:internalPortReference spirit:componentRef="EX_0" spirit:portRef="write_reg_en_out"/>
         <spirit:internalPortReference spirit:componentRef="EXMEM_0" spirit:portRef="write_reg_en_in"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="reg_write_en_from_ex"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>EX_0_write_reg_addr_out</spirit:name>
         <spirit:internalPortReference spirit:componentRef="EX_0" spirit:portRef="write_reg_addr_out"/>
         <spirit:internalPortReference spirit:componentRef="EXMEM_0" spirit:portRef="write_reg_addr_in"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="reg_write_addr_from_ex"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>EXMEM_0_result_out</spirit:name>
@@ -318,16 +336,19 @@
         <spirit:name>MEM_0_result_out</spirit:name>
         <spirit:internalPortReference spirit:componentRef="MEM_0" spirit:portRef="result_out"/>
         <spirit:internalPortReference spirit:componentRef="MEMWB_0" spirit:portRef="result_in"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="data_from_mem"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>MEM_0_write_reg_en_out</spirit:name>
         <spirit:internalPortReference spirit:componentRef="MEM_0" spirit:portRef="write_reg_en_out"/>
         <spirit:internalPortReference spirit:componentRef="MEMWB_0" spirit:portRef="write_reg_en_in"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="reg_write_en_from_mem"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>MEM_0_write_reg_addr_out</spirit:name>
         <spirit:internalPortReference spirit:componentRef="MEM_0" spirit:portRef="write_reg_addr_out"/>
         <spirit:internalPortReference spirit:componentRef="MEMWB_0" spirit:portRef="write_reg_addr_in"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="reg_write_addr_from_mem"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>MEMWB_0_write_reg_en_out</spirit:name>
@@ -345,14 +366,24 @@
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="write_addr"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
+        <spirit:name>RegReadProxy_0_read_data_1</spirit:name>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="read_data_1"/>
+        <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_data_1"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
+        <spirit:name>RegReadProxy_0_read_data_2</spirit:name>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="read_data_2"/>
+        <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_data_2"/>
+      </spirit:adHocConnection>
+      <spirit:adHocConnection>
         <spirit:name>RegFile_0_read_data_1</spirit:name>
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="read_data_1"/>
-        <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_data_1"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="data_1_from_reg"/>
       </spirit:adHocConnection>
       <spirit:adHocConnection>
         <spirit:name>RegFile_0_read_data_2</spirit:name>
         <spirit:internalPortReference spirit:componentRef="RegFile_0" spirit:portRef="read_data_2"/>
-        <spirit:internalPortReference spirit:componentRef="ID_0" spirit:portRef="reg_data_2"/>
+        <spirit:internalPortReference spirit:componentRef="RegReadProxy_0" spirit:portRef="data_2_from_reg"/>
       </spirit:adHocConnection>
     </spirit:adHocConnections>
   </spirit:design>
