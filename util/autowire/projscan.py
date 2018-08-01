@@ -7,7 +7,7 @@ class Util(object):
     re_macro = re.compile(r'(`[A-Za-z_][A-Za-z0-9_]*)')
     re_comment = re.compile(r'//.*\n')
     re_module = re.compile(r'module\s+([A-Za-z_][A-Za-z0-9_]*).*?\((.*?)\);')
-    re_ports = re.compile(r'\s?(input|output|inout)\s?(reg|wire)?\s?(\[.*?\])?\s?([A-Za-z_][A-Za-z0-9_]*)\s?,?\s?')
+    re_ports = re.compile(r'\s?(input|output|inout)\s?(reg|wire)?\s?(\[.*?\])?\s([A-Za-z_][A-Za-z0-9_]*)\s?,?\s?')
     re_space = re.compile(r'\s\s+')
 
     @staticmethod
