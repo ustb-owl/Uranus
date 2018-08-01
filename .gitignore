@@ -37,5 +37,8 @@ Temporary Items
 build
 debug
 
+# python
+__pycache__
+
 # output of utilities
 util/*/out
