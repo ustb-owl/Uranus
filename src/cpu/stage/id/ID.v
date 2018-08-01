@@ -5,6 +5,7 @@
 `include "../../define/opcode.v"
 `include "../../define/regimm.v"
 `include "../../define/funct.v"
+`include "../../define/cp0.v"
 
 module ID(
     input rst,
@@ -19,7 +20,7 @@ module ID(
     output reg[`REG_ADDR_BUS] reg_addr_1,
     output reg[`REG_ADDR_BUS] reg_addr_2,
     // to EX stage
-    output reg[`FUNCT_BUS] funct,
+    output [`FUNCT_BUS] funct,
     output [`SHAMT_BUS] shamt,
     output reg[`DATA_BUS] operand_1,
     output reg[`DATA_BUS] operand_2,
@@ -44,7 +45,7 @@ module ID(
     wire[`DATA_BUS] zero_extended_imm_hi = {inst_imm, 16'b0};
     wire[`DATA_BUS] sign_extended_imm = {{16{inst_imm[15]}}, inst_imm};
 
-    // generate read address of registers
+    // generate address of registers to be read
     always @(*) begin
         if (!rst) begin
             reg_read_en_1 <= 0;
@@ -54,19 +55,53 @@ module ID(
         end
         else begin
             case (inst_op)
-                `OP_ORI: begin
+                // arithmetic & logic (immediate)
+                `OP_ADDI, `OP_ADDIU, `OP_SLTI, `OP_SLTIU,
+                `OP_ANDI, `OP_ORI, `OP_XORI,
+                // memory accessing
+                `OP_LB, `OP_LH, `OP_LW, `OP_LBU, `OP_LHU: begin
                     reg_read_en_1 <= 1;
                     reg_read_en_2 <= 0;
                     reg_addr_1 <= inst_rs;
                     reg_addr_2 <= 0;
                 end
+                // branch
+                `OP_BEQ, `OP_BNE, `OP_BLEZ, `OP_BGTZ,
+                // memory accessing
+                `OP_SB, `OP_SH, `OP_SW,
+                // r-type
                 `OP_SPECIAL: begin
                     reg_read_en_1 <= 1;
                     reg_read_en_2 <= 1;
                     reg_addr_1 <= inst_rs;
                     reg_addr_2 <= inst_rt;
                 end
-                default: begin
+                // reg-imm
+                `OP_REGIMM: begin
+                    case (inst_rt)
+                        `REGIMM_BLTZ, `REGIMM_BLTZAL,
+                        `REGIMM_BGEZ, `REGIMM_BGEZAL: begin
+                            reg_read_en_1 <= 1;
+                            reg_read_en_2 <= 0;
+                            reg_addr_1 <= inst_rs;
+                            reg_addr_2 <= 0;
+                        end
+                        default: begin
+                            reg_read_en_1 <= 0;
+                            reg_read_en_2 <= 0;
+                            reg_addr_1 <= 0;
+                            reg_addr_2 <= 0;
+                        end
+                    endcase
+                end
+                // coprocessor
+                `OP_CP0: begin
+                    reg_read_en_1 <= 1;
+                    reg_read_en_2 <= 1;
+                    reg_addr_1 <= inst_rt;
+                    reg_addr_2 <= 0;
+                end
+                default: begin   // OP_J, OP_JAL, OP_LUI
                     reg_read_en_1 <= 0;
                     reg_read_en_2 <= 0;
                     reg_addr_1 <= 0;
@@ -76,20 +111,11 @@ module ID(
         end
     end
 
-    // generate funct signal
-    always @(*) begin
-        case (inst_op)
-            `OP_SPECIAL: begin
-                funct <= inst_funct;
-            end
-            `OP_ORI: begin
-                funct <= `FUNCT_OR;
-            end
-            default: begin
-                funct <= `FUNCT_NOP;
-            end
-        endcase
-    end
+    // generate FUNCT signal
+    FunctGen funct_gen(inst_op, inst_funct, inst_rt, funct);
+
+    // calculate link address
+    wire[`ADDR_BUS] link_addr = addr + 8;
 
     // generate operand_1
     always @(*) begin
@@ -98,10 +124,26 @@ module ID(
         end
         else begin
             case (inst_op)
-                `OP_ORI: begin
+                // immediate
+                `OP_ADDI, `OP_ADDIU, `OP_SLTI, `OP_SLTIU,
+                `OP_ANDI, `OP_ORI, `OP_XORI, `OP_LUI,
+                // memory accessing
+                `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
+                `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
                     operand_1 <= reg_data_1;
                 end
                 `OP_SPECIAL: begin
+                    operand_1 <= funct == `FUNCT_JALR ? link_addr : reg_data_1;
+                end
+                `OP_REGIMM: begin
+                    operand_1 <= inst_rt == `REGIMM_BLTZAL
+                        || inst_rt == `REGIMM_BGEZAL ? link_addr : 0;
+                end
+                `OP_JAL: begin
+                    operand_1 <= link_addr;
+                end
+                `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
+                `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
                     operand_1 <= reg_data_1;
                 end
                 default: begin
@@ -118,8 +160,18 @@ module ID(
         end
         else begin
             case (inst_op)
-                `OP_ORI: begin
+                `OP_ORI, `OP_ANDI, `OP_XORI: begin
                     operand_2 <= zero_extended_imm;
+                end 
+                `OP_LUI: begin
+                    operand_2 <= zero_extended_imm_hi;
+                end
+                // arithmetic & logic (immediate)
+                `OP_ADDI, `OP_ADDIU, `OP_SLTI, `OP_SLTIU,
+                `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
+                // memory accessing
+                `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
+                    operand_2 <= sign_extended_imm;
                 end
                 `OP_SPECIAL: begin
                     operand_2 <= reg_data_2;
@@ -139,13 +191,45 @@ module ID(
         end
         else begin
             case (inst_op)
-                `OP_ORI: begin
+                // immediate
+                `OP_ADDI, `OP_ADDIU, `OP_SLTI, `OP_SLTIU,
+                `OP_ANDI, `OP_ORI, `OP_XORI, `OP_LUI: begin
                     write_reg_en <= 1;
                     write_reg_addr <= inst_rt;
                 end
                 `OP_SPECIAL: begin
                     write_reg_en <= 1;
                     write_reg_addr <= inst_rd;
+                end
+                `OP_JAL: begin
+                    write_reg_en <= 1;
+                    write_reg_addr <= 31;   // $ra (return address)
+                end
+                `OP_REGIMM: begin
+                    case (inst_rt)
+                        `REGIMM_BGEZAL, `REGIMM_BLTZAL: begin
+                            write_reg_en <= 1;
+                            write_reg_addr <= 31;   // $ra
+                        end
+                        default: begin
+                            write_reg_en <= 0;
+                            write_reg_addr <= 0;
+                        end
+                    endcase
+                end
+                `OP_LB, `OP_LBU, `OP_LH, `OP_LHU, `OP_LW: begin
+                    write_reg_en <= 1;
+                    write_reg_addr <= inst_rt;
+                end
+                `OP_CP0: begin
+                    if (inst_rs == `CP0_MFC0 && !inst[10:0]) begin
+                        write_reg_en <= 1;
+                        write_reg_addr <= inst_rt;
+                    end
+                    else begin
+                        write_reg_en <= 0;
+                        write_reg_addr <= 0;
+                    end
                 end
                 default: begin
                     write_reg_en <= 0;
