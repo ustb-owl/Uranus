@@ -12,16 +12,27 @@ module EX(
     input [`DATA_BUS] operand_2,
     input  write_reg_en_in,
     input [`REG_ADDR_BUS] write_reg_addr_in,
+    // HI & LO data
+    input [`DATA_BUS] hi_in,
+    input [`DATA_BUS] lo_in,
     // to WB stage
     output [`DATA_BUS] result_out,
     output  write_reg_en_out,
-    output [`REG_ADDR_BUS] write_reg_addr_out
+    output [`REG_ADDR_BUS] write_reg_addr_out,
+    // HI & LO control
+    output reg hilo_write_en,
+    output reg[`DATA_BUS] hi_out,
+    output reg[`DATA_BUS] lo_out
 );
 
     reg[`DATA_BUS] result;
 
     assign result_out = rst ? result : 0;
     assign write_reg_addr_out = rst ? write_reg_addr_in : 0;
+
+    // store HI & LO
+    wire[`DATA_BUS] hi = hi_in;
+    wire[`DATA_BUS] lo = lo_in;
 
     // calculate the complement of operand_2
     wire[`DATA_BUS] operand_2_mux = (funct == `FUNCT_SUB ||
@@ -58,9 +69,9 @@ module EX(
             // arithmetic
             `FUNCT_ADD, `FUNCT_ADDU,
             `FUNCT_SUB, `FUNCT_SUBU: result <= result_sum;
-            // // HI & LO
-            // `FUNCT_MFHI: result <= hi;
-            // `FUNCT_MFLO: result <= lo;
+            // HI & LO
+            `FUNCT_MFHI: result <= hi;
+            `FUNCT_MFLO: result <= lo;
             // shift
             `FUNCT_SLL: result <= operand_2 << shamt;
             `FUNCT_SRL: result <= operand_2 >> shamt;
@@ -76,6 +87,7 @@ module EX(
     reg write_reg_en;
     assign write_reg_en_out = rst ? write_reg_en : 0;
 
+    // control register write
     always @(*) begin
         case (funct)
             // TODO: raise exception when overflow
@@ -84,6 +96,39 @@ module EX(
             `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV,
             `FUNCT_DIVU, `FUNCT_JR: write_reg_en <= 0;
             default: write_reg_en <= write_reg_en_in;
+        endcase
+    end
+
+    // write HI & LO 
+    always @(*) begin
+        case (funct)
+            // HILO move instructions
+            `FUNCT_MTHI: begin
+                hilo_write_en <= 1;
+                hi_out <= operand_1;
+                lo_out <= lo;
+            end
+            `FUNCT_MTLO: begin
+                hilo_write_en <= 1;
+                hi_out <= hi;
+                lo_out <= operand_1;
+            end
+            // multiplication & division
+            // `FUNCT_MULT, `FUNCT_MULTU: begin
+            //     hilo_write_en <= 1;
+            //     hi_out <= mul_result_final[63:32];
+            //     lo_out <= mul_result_final[31:0];
+            // end
+            // `FUNCT_DIV, `FUNCT_DIVU: begin
+            //     hilo_write_en <= 1;
+            //     hi_out <= div_result[63:32];
+            //     lo_out <= div_result[31:0];
+            // end
+            default: begin
+                hilo_write_en <= 0;
+                hi_out <= hi;
+                lo_out <= lo;
+            end
         endcase
     end
 
