@@ -19,6 +19,9 @@ module ID(
     output reg reg_read_en_2,
     output reg[`REG_ADDR_BUS] reg_addr_1,
     output reg[`REG_ADDR_BUS] reg_addr_2,
+    // to IF stage
+    output reg branch_flag,
+    output reg[`ADDR_BUS] branch_addr,
     // to EX stage
     output [`FUNCT_BUS] funct,
     output [`SHAMT_BUS] shamt,
@@ -234,6 +237,108 @@ module ID(
                 default: begin
                     write_reg_en <= 0;
                     write_reg_addr <= 0;
+                end
+            endcase
+        end
+    end
+
+    // generate branch address
+    wire[`ADDR_BUS] addr_plus_4 = addr + 32'h4;
+    wire[25:0] jump_addr = inst[25:0];
+    wire[`DATA_BUS] sign_extended_imm_sll2 = {{14{inst[15]}}, inst[15:0], 2'b00};
+
+    always @(*) begin
+        if (!rst) begin
+            branch_flag <= 0;
+            branch_addr <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_J, `OP_JAL: begin
+                    branch_flag <= 1;
+                    branch_addr <= {addr_plus_4[31:28], jump_addr, 2'b00};
+                end
+                `OP_SPECIAL: begin
+                    if (inst_funct == `FUNCT_JR || inst_funct == `FUNCT_JALR) begin
+                        branch_flag <= 1;
+                        branch_addr <= reg_data_1;
+                    end
+                    else begin
+                        branch_flag <= 0;
+                        branch_addr <= 0;
+                    end
+                end
+                `OP_BEQ: begin
+                    if (reg_data_1 == reg_data_2) begin
+                        branch_flag <= 1;
+                        branch_addr <= addr_plus_4 + sign_extended_imm_sll2;
+                    end
+                    else begin
+                        branch_flag <= 0;
+                        branch_addr <= 0;
+                    end
+                end
+                `OP_BGTZ: begin
+                    if (!reg_data_1[31] && reg_data_1) begin
+                        branch_flag <= 1;
+                        branch_addr <= addr_plus_4 + sign_extended_imm_sll2;
+                    end
+                    else begin
+                        branch_flag <= 0;
+                        branch_addr <= 0;
+                    end
+                end
+                `OP_BLEZ: begin
+                    if (reg_data_1[31] || !reg_data_1) begin
+                        branch_flag <= 1;
+                        branch_addr <= addr_plus_4 + sign_extended_imm_sll2;
+                    end
+                    else begin
+                        branch_flag <= 0;
+                        branch_addr <= 0;
+                    end            
+                end
+                `OP_BNE: begin
+                    if (reg_data_1 != reg_data_2) begin
+                        branch_flag <= 1;
+                        branch_addr <= addr_plus_4 + sign_extended_imm_sll2;
+                    end
+                    else begin
+                        branch_flag <= 0;
+                        branch_addr <= 0;
+                    end
+                end
+                `OP_REGIMM: begin
+                    case (inst_rt)
+                        `REGIMM_BLTZ, `REGIMM_BLTZAL: begin
+                            if (reg_data_1[31]) begin
+                                branch_flag <= 1;
+                                branch_addr <= addr_plus_4 + sign_extended_imm_sll2;
+                            end
+                            else begin
+                                branch_flag <= 0;
+                                branch_addr <= 0;
+                            end
+                        end
+                        `REGIMM_BGEZ, `REGIMM_BGEZAL: begin
+                            if (!reg_data_1[31]) begin
+                                branch_flag <= 1;
+                                branch_addr <= addr_plus_4 + sign_extended_imm_sll2;
+                            end
+                            else begin
+                                branch_flag <= 0;
+                                branch_addr <= 0;
+                            end
+                        end
+                        default: begin
+                            branch_flag <= 0;
+                            branch_addr <= 0;
+                        end
+                    endcase
+                end
+                default: begin
+                    branch_flag <= 0;
+                    branch_addr <= 0;
                 end
             endcase
         end

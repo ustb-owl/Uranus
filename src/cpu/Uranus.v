@@ -63,6 +63,8 @@ module Uranus(
     wire[31:0] mem_0_lo_out;
     wire[31:0] hiloreadproxy_0_hi_out;
     wire[31:0] hiloreadproxy_0_lo_out;
+    wire id_0_branch_flag;
+    wire[31:0] id_0_branch_addr;
 
     IFID ifid_0(
         .clk(clk_1),
@@ -125,31 +127,6 @@ module Uranus(
         .read_data_2(regreadproxy_0_read_data_2),
         .data_1_from_reg(regfile_0_read_data_1),
         .data_2_from_reg(regfile_0_read_data_2)
-    );
-
-    PC pc_0(
-        .clk(clk_1),
-        .rst(rst_1),
-        .rom_en(pc_0_rom_en),
-        .addr(pc_0_addr)
-    );
-
-    ID id_0(
-        .rst(rst_1),
-        .addr(ifid_0_addr_out),
-        .inst(ifid_0_inst_out),
-        .write_reg_en(id_0_write_reg_en),
-        .write_reg_addr(id_0_write_reg_addr),
-        .operand_2(id_0_operand_2),
-        .operand_1(id_0_operand_1),
-        .shamt(id_0_shamt),
-        .funct(id_0_funct),
-        .reg_addr_2(id_0_reg_addr_2),
-        .reg_addr_1(id_0_reg_addr_1),
-        .reg_read_en_2(id_0_reg_read_en_2),
-        .reg_read_en_1(id_0_reg_read_en_1),
-        .reg_data_1(regreadproxy_0_read_data_1),
-        .reg_data_2(regreadproxy_0_read_data_2)
     );
 
     EX ex_0(
@@ -241,6 +218,35 @@ module Uranus(
         .mem_lo_in(mem_0_lo_out),
         .hi_out(hiloreadproxy_0_hi_out),
         .lo_out(hiloreadproxy_0_lo_out)
+    );
+
+    ID id_0(
+        .rst(rst_1),
+        .addr(ifid_0_addr_out),
+        .inst(ifid_0_inst_out),
+        .write_reg_en(id_0_write_reg_en),
+        .write_reg_addr(id_0_write_reg_addr),
+        .operand_2(id_0_operand_2),
+        .operand_1(id_0_operand_1),
+        .shamt(id_0_shamt),
+        .funct(id_0_funct),
+        .reg_addr_2(id_0_reg_addr_2),
+        .reg_addr_1(id_0_reg_addr_1),
+        .reg_read_en_2(id_0_reg_read_en_2),
+        .reg_read_en_1(id_0_reg_read_en_1),
+        .reg_data_1(regreadproxy_0_read_data_1),
+        .reg_data_2(regreadproxy_0_read_data_2),
+        .branch_flag(id_0_branch_flag),
+        .branch_addr(id_0_branch_addr)
+    );
+
+    PC pc_0(
+        .clk(clk_1),
+        .rst(rst_1),
+        .rom_en(pc_0_rom_en),
+        .addr(pc_0_addr),
+        .branch_flag(id_0_branch_flag),
+        .branch_addr(id_0_branch_addr)
     );
 
 endmodule // Uranus
