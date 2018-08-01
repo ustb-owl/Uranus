@@ -124,31 +124,35 @@ def getHexAssembly(l):
     else:
         return encodeITypeInst(l)
 
-# judge the count of arguments
-if len(sys.argv) < 2:
-    exit(1)
+def main():
+    # judge the count of arguments
+    if len(sys.argv) < 2:
+        exit(1)
 
-# read arguments
-path = sys.argv[1]
-if len(sys.argv) >= 3:
-    bin_path = sys.argv[2]
-else:
-    bin_path = path + '.bin'
+    # read arguments
+    path = sys.argv[1]
+    if len(sys.argv) >= 3:
+        bin_path = sys.argv[2]
+    else:
+        bin_path = path[:path.rfind('.')] + '.bin'
 
-# read assembly file
-asm_list = []
-with open(path, 'r') as f:
-    asm_list = f.readlines()
+    # read assembly file
+    asm_list = []
+    with open(path, 'r') as f:
+        asm_list = f.readlines()
 
-# generate bin file
-bin_data = ''
-for i in asm_list:
-    asm = i.strip().lower().replace(',', ' ').split()
-    asm_str = ' '.join(asm)
-    asm = asm_str.split(' ')
-    bin_data += getHexAssembly(asm)
-    bin_data += '   // ' + asm_str + '\n'
+    # generate bin file
+    bin_data = ''
+    for i in asm_list:
+        asm = i.strip().lower().replace(',', ' ').split()
+        asm_str = ' '.join(asm)
+        asm = asm_str.split(' ')
+        bin_data += getHexAssembly(asm)
+        bin_data += '   // ' + asm_str + '\n'
 
-# output bin file
-with open(bin_path, 'w') as f:
-    f.write(bin_data)
+    # output bin file
+    with open(bin_path, 'w') as f:
+        f.write(bin_data)
+
+if __name__ == '__main__':
+    main()
