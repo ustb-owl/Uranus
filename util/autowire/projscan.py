@@ -128,4 +128,5 @@ class ProjectScanner(object):
         try:
             return self.modules[module_name].ports[port_name]
         except KeyError:
+            # print(module_name, port_name)
             return None

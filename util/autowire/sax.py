@@ -40,6 +40,8 @@ class BlockDesignSaxHandler(object):
                     mod_ref = attr_test('componentRef')
                     mod_ast = self.__file_ast.modules[mod_ref]
                     mod_ast.connections.append(con_ast)
+                    # if mod_ast.module_name == 'adProxy':
+                    #     print(mod_ast.instance_name)
                     bus = self.scanner.get_bus(mod_ast.module_name, con_ast.port_name)
                     if self.__cur_ast.bus != bus:
                         self.__cur_ast.bus = bus
@@ -82,11 +84,19 @@ class BlockDesignSaxHandler(object):
                 elif tag_test('configurableElementValues',
                         'configurableElementValue', back=True):
                     if attr_test('referenceId', 'bd:referenceName'):
-                        self.__cur_ast.module_name = text
+                        # TODO: an inappropriate implementation
+                        if not self.__cur_ast.module_name:
+                            self.__cur_ast.module_name = text
+                        else:
+                            self.__cur_ast.module_name += text
             elif tag_test('design', 'adHocConnections', 'adHocConnection'):
                 self.__cur_ast = self.__cur_ast or VerilogWireAST()
                 if tag_test('name', back=True):
-                    self.__cur_ast.name = text.lower()
+                    # TODO: an inappropriate implementation
+                    if not self.__cur_ast.name:
+                        self.__cur_ast.name = text.lower()
+                    else:
+                        self.__cur_ast.name += text.lower()
         except IndexError:
             pass
     
