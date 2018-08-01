@@ -40,5 +40,7 @@ debug
 # python
 __pycache__
 
-# output of utilities
+# utilities
+util/assembler/asm
+util/autowire/bd
 util/*/out
