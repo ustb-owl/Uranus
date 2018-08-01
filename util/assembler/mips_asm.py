@@ -35,15 +35,17 @@ def encodeRTypeInst(l):
         'xor': 0b100110,
         'nor': 0b100111,
         'slt': 0b101010,
-        'sltu': 0b101000,
-        'sllv': 0b000100,
-        'srlv': 0b000110,
-        'srav': 0b000111
+        'sltu': 0b101000
     }
     shift = {
         'sll': 0b000000,
         'srl': 0b000010,
         'sra': 0b000011
+    }
+    shift_v = {
+        'sllv': 0b000100,
+        'srlv': 0b000110,
+        'srav': 0b000111
     }
     jump = {
         'jr': 0b001000
@@ -62,6 +64,13 @@ def encodeRTypeInst(l):
         inst += getReg(l[1]) << 11
         inst += getImm(l[3]) << 6
         inst += shift[l[0]]
+    elif l[0] in shift_v:
+        inst = op << 26
+        inst += getReg(l[3]) << 21
+        inst += getReg(l[2]) << 16
+        inst += getReg(l[1]) << 11
+        inst += fill << 6
+        inst += shift_v[l[0]]
     else:
         inst = op << 26
         inst += getReg(l[1]) << 21
