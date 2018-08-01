@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "define/bus.v"
+`include "../define/bus.v"
 
 module CP0(
     input clk,
