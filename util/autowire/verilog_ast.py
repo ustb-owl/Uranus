@@ -5,7 +5,7 @@ class VerilogFileTemplate(object):
             'module {module_name}(\n{ports}\n);\n\n{wires}\n\n' + \
             '{modules}\n\nendmodule // {module_name}\n'
     port_def_template = '{direction} {type}{bus} {name}'
-    wire_def_template = 'wire {bus} {name}{reference};'
+    wire_def_template = 'wire{bus} {name}{reference};'
     module_instance_template = '{module_name} {instance_name}(\n{io});'
     io_connection_template = '.{port}({wire})'
     template_tab_size = 4
@@ -77,7 +77,7 @@ class VerilogWireAST(_VerilogBaseAST):
         ref_str = ' = ' + self.reference if self.reference else ''
         return indent_str + \
                 VerilogFileTemplate.wire_def_template.format(reference=ref_str,
-                    name=self.name, bus=bus_str).replace('  ', ' ')
+                    name=self.name, bus=bus_str)
 
 class VerilogModuleAST(_VerilogBaseAST):
     def __init__(self):
