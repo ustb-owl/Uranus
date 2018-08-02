@@ -7,7 +7,7 @@ module RAM(
     input rst,
     input en,
     input write_en,
-    input write_sel,
+    input [3:0] write_sel,
     input [`ADDR_BUS] addr,
     input [`DATA_BUS] data_in,
     output reg[`DATA_BUS] data_out

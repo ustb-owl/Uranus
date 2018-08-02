@@ -27,6 +27,12 @@ module ID(
     output [`SHAMT_BUS] shamt,
     output reg[`DATA_BUS] operand_1,
     output reg[`DATA_BUS] operand_2,
+    // to MEM stage
+    output reg mem_read_flag,
+    output reg mem_write_flag,
+    output reg mem_sign_ext_flag,
+    output reg[3:0] mem_sel,
+    output reg[`DATA_BUS] mem_write_data,
     // to WB stage (write back to regfile)
     output reg write_reg_en,
     output reg[`REG_ADDR_BUS] write_reg_addr
@@ -171,8 +177,8 @@ module ID(
                 end
                 // arithmetic & logic (immediate)
                 `OP_ADDI, `OP_ADDIU, `OP_SLTI, `OP_SLTIU,
-                `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
                 // memory accessing
+                `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
                 `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
                     operand_2 <= sign_extended_imm;
                 end
@@ -340,6 +346,71 @@ module ID(
                     branch_flag <= 0;
                     branch_addr <= 0;
                 end
+            endcase
+        end
+    end
+
+    // generate control signal of memory accessing
+    always @(*) begin
+        if (!rst) begin
+            mem_write_flag <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_SB, `OP_SH, `OP_SW: mem_write_flag <= 1;
+                default: mem_write_flag <= 0;
+            endcase
+        end
+    end
+    
+    always @(*) begin
+        if (!rst) begin
+            mem_read_flag <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_LB, `OP_LBU, `OP_LH, `OP_LHU, `OP_LW: mem_read_flag <= 1;
+                default: mem_read_flag <= 0;
+            endcase
+        end
+    end
+    
+    always @(*) begin
+        if (!rst) begin
+            mem_sign_ext_flag <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_LB, `OP_LH, `OP_LW: mem_sign_ext_flag <= 1;
+                default: mem_sign_ext_flag <= 0;
+            endcase
+        end
+    end
+
+    // mem_sel: lb & sb -> 1, lh & sh -> 11, lw & sw -> 1111
+    always @(*) begin
+        if (!rst) begin
+            mem_sel <= 4'b0000;
+        end
+        else begin
+            case (inst_op)
+                `OP_LB, `OP_LBU, `OP_SB: mem_sel <= 4'b0001;
+                `OP_LH, `OP_LHU, `OP_SH: mem_sel <= 4'b0011;
+                `OP_LW, `OP_SW: mem_sel <= 4'b1111;
+                default: mem_sel <= 4'b0000;
+            endcase
+        end
+    end
+
+    // generate data to be written to memory
+    always @(*) begin
+        if (!rst) begin
+            mem_write_data <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_SB, `OP_SH, `OP_SW: mem_write_data <= reg_data_2;
+                default: mem_write_data <= 0;
             endcase
         end
     end

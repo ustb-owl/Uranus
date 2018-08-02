@@ -65,6 +65,32 @@ module Uranus(
     wire[31:0] hiloreadproxy_0_lo_out;
     wire id_0_branch_flag;
     wire[31:0] id_0_branch_addr;
+    wire mem_0_ram_en;
+    wire mem_0_ram_write_en;
+    wire[3:0] mem_0_ram_write_sel;
+    wire[31:0] mem_0_ram_addr;
+    wire[31:0] mem_0_ram_write_data;
+    wire[31:0] ram_0_data_out;
+    wire id_0_mem_read_flag;
+    wire id_0_mem_write_flag;
+    wire id_0_mem_sign_ext_flag;
+    wire[3:0] id_0_mem_sel;
+    wire[31:0] id_0_mem_write_data;
+    wire idex_0_mem_read_flag_out;
+    wire idex_0_mem_write_flag_out;
+    wire idex_0_mem_sign_ext_flag_out;
+    wire[3:0] idex_0_mem_sel_out;
+    wire[31:0] idex_0_mem_write_data_out;
+    wire ex_0_mem_read_flag_out;
+    wire ex_0_mem_write_flag_out;
+    wire ex_0_mem_sign_ext_flag_out;
+    wire[3:0] ex_0_mem_sel_out;
+    wire[31:0] ex_0_mem_write_data_out;
+    wire exmem_0_mem_read_flag_out;
+    wire exmem_0_mem_write_flag_out;
+    wire exmem_0_mem_sign_ext_flag_out;
+    wire[3:0] exmem_0_mem_sel_out;
+    wire[31:0] exmem_0_mem_write_data_out;
 
     IFID ifid_0(
         .clk(clk_1),
@@ -73,23 +99,6 @@ module Uranus(
         .inst_in(rom_0_inst),
         .addr_out(ifid_0_addr_out),
         .inst_out(ifid_0_inst_out)
-    );
-
-    IDEX idex_0(
-        .clk(clk_1),
-        .rst(rst_1),
-        .write_reg_en_in(id_0_write_reg_en),
-        .write_reg_addr_in(id_0_write_reg_addr),
-        .operand_2_in(id_0_operand_2),
-        .operand_1_in(id_0_operand_1),
-        .shamt_in(id_0_shamt),
-        .funct_in(id_0_funct),
-        .funct_out(idex_0_funct_out),
-        .shamt_out(idex_0_shamt_out),
-        .operand_1_out(idex_0_operand_1_out),
-        .operand_2_out(idex_0_operand_2_out),
-        .write_reg_en_out(idex_0_write_reg_en_out),
-        .write_reg_addr_out(idex_0_write_reg_addr_out)
     );
 
     ROM rom_0(
@@ -127,57 +136,6 @@ module Uranus(
         .read_data_2(regreadproxy_0_read_data_2),
         .data_1_from_reg(regfile_0_read_data_1),
         .data_2_from_reg(regfile_0_read_data_2)
-    );
-
-    EX ex_0(
-        .rst(rst_1),
-        .funct(idex_0_funct_out),
-        .shamt(idex_0_shamt_out),
-        .operand_1(idex_0_operand_1_out),
-        .operand_2(idex_0_operand_2_out),
-        .write_reg_en_in(idex_0_write_reg_en_out),
-        .write_reg_addr_in(idex_0_write_reg_addr_out),
-        .result_out(ex_0_result_out),
-        .write_reg_en_out(ex_0_write_reg_en_out),
-        .write_reg_addr_out(ex_0_write_reg_addr_out),
-        .hilo_write_en(ex_0_hilo_write_en),
-        .hi_out(ex_0_hi_out),
-        .lo_out(ex_0_lo_out),
-        .hi_in(hiloreadproxy_0_hi_out),
-        .lo_in(hiloreadproxy_0_lo_out)
-    );
-
-    EXMEM exmem_0(
-        .clk(clk_1),
-        .rst(rst_1),
-        .result_in(ex_0_result_out),
-        .write_reg_en_in(ex_0_write_reg_en_out),
-        .write_reg_addr_in(ex_0_write_reg_addr_out),
-        .result_out(exmem_0_result_out),
-        .write_reg_en_out(exmem_0_write_reg_en_out),
-        .write_reg_addr_out(exmem_0_write_reg_addr_out),
-        .hilo_write_en_in(ex_0_hilo_write_en),
-        .hi_in(ex_0_hi_out),
-        .lo_in(ex_0_lo_out),
-        .hilo_write_en_out(exmem_0_hilo_write_en_out),
-        .hi_out(exmem_0_hi_out),
-        .lo_out(exmem_0_lo_out)
-    );
-
-    MEM mem_0(
-        .rst(rst_1),
-        .result_in(exmem_0_result_out),
-        .write_reg_en_in(exmem_0_write_reg_en_out),
-        .write_reg_addr_in(exmem_0_write_reg_addr_out),
-        .result_out(mem_0_result_out),
-        .write_reg_en_out(mem_0_write_reg_en_out),
-        .write_reg_addr_out(mem_0_write_reg_addr_out),
-        .hilo_write_en_in(exmem_0_hilo_write_en_out),
-        .hi_in(exmem_0_hi_out),
-        .lo_in(exmem_0_lo_out),
-        .hilo_write_en_out(mem_0_hilo_write_en_out),
-        .hi_out(mem_0_hi_out),
-        .lo_out(mem_0_lo_out)
     );
 
     MEMWB memwb_0(
@@ -220,6 +178,15 @@ module Uranus(
         .lo_out(hiloreadproxy_0_lo_out)
     );
 
+    PC pc_0(
+        .clk(clk_1),
+        .rst(rst_1),
+        .rom_en(pc_0_rom_en),
+        .addr(pc_0_addr),
+        .branch_flag(id_0_branch_flag),
+        .branch_addr(id_0_branch_addr)
+    );
+
     ID id_0(
         .rst(rst_1),
         .addr(ifid_0_addr_out),
@@ -237,16 +204,132 @@ module Uranus(
         .reg_data_1(regreadproxy_0_read_data_1),
         .reg_data_2(regreadproxy_0_read_data_2),
         .branch_flag(id_0_branch_flag),
-        .branch_addr(id_0_branch_addr)
+        .branch_addr(id_0_branch_addr),
+        .mem_read_flag(id_0_mem_read_flag),
+        .mem_write_flag(id_0_mem_write_flag),
+        .mem_sign_ext_flag(id_0_mem_sign_ext_flag),
+        .mem_sel(id_0_mem_sel),
+        .mem_write_data(id_0_mem_write_data)
     );
 
-    PC pc_0(
+    IDEX idex_0(
         .clk(clk_1),
         .rst(rst_1),
-        .rom_en(pc_0_rom_en),
-        .addr(pc_0_addr),
-        .branch_flag(id_0_branch_flag),
-        .branch_addr(id_0_branch_addr)
+        .write_reg_en_in(id_0_write_reg_en),
+        .write_reg_addr_in(id_0_write_reg_addr),
+        .operand_2_in(id_0_operand_2),
+        .operand_1_in(id_0_operand_1),
+        .shamt_in(id_0_shamt),
+        .funct_in(id_0_funct),
+        .funct_out(idex_0_funct_out),
+        .shamt_out(idex_0_shamt_out),
+        .operand_1_out(idex_0_operand_1_out),
+        .operand_2_out(idex_0_operand_2_out),
+        .write_reg_en_out(idex_0_write_reg_en_out),
+        .write_reg_addr_out(idex_0_write_reg_addr_out),
+        .mem_read_flag_in(id_0_mem_read_flag),
+        .mem_write_flag_in(id_0_mem_write_flag),
+        .mem_sign_ext_flag_in(id_0_mem_sign_ext_flag),
+        .mem_sel_in(id_0_mem_sel),
+        .mem_write_data_in(id_0_mem_write_data),
+        .mem_read_flag_out(idex_0_mem_read_flag_out),
+        .mem_write_flag_out(idex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_out(idex_0_mem_sign_ext_flag_out),
+        .mem_sel_out(idex_0_mem_sel_out),
+        .mem_write_data_out(idex_0_mem_write_data_out)
+    );
+
+    EX ex_0(
+        .rst(rst_1),
+        .funct(idex_0_funct_out),
+        .shamt(idex_0_shamt_out),
+        .operand_1(idex_0_operand_1_out),
+        .operand_2(idex_0_operand_2_out),
+        .write_reg_en_in(idex_0_write_reg_en_out),
+        .write_reg_addr_in(idex_0_write_reg_addr_out),
+        .result_out(ex_0_result_out),
+        .write_reg_en_out(ex_0_write_reg_en_out),
+        .write_reg_addr_out(ex_0_write_reg_addr_out),
+        .hilo_write_en(ex_0_hilo_write_en),
+        .hi_out(ex_0_hi_out),
+        .lo_out(ex_0_lo_out),
+        .hi_in(hiloreadproxy_0_hi_out),
+        .lo_in(hiloreadproxy_0_lo_out),
+        .mem_read_flag_in(idex_0_mem_read_flag_out),
+        .mem_write_flag_in(idex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_in(idex_0_mem_sign_ext_flag_out),
+        .mem_sel_in(idex_0_mem_sel_out),
+        .mem_write_data_in(idex_0_mem_write_data_out),
+        .mem_read_flag_out(ex_0_mem_read_flag_out),
+        .mem_write_flag_out(ex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_out(ex_0_mem_sign_ext_flag_out),
+        .mem_sel_out(ex_0_mem_sel_out),
+        .mem_write_data_out(ex_0_mem_write_data_out)
+    );
+
+    EXMEM exmem_0(
+        .clk(clk_1),
+        .rst(rst_1),
+        .result_in(ex_0_result_out),
+        .write_reg_en_in(ex_0_write_reg_en_out),
+        .write_reg_addr_in(ex_0_write_reg_addr_out),
+        .result_out(exmem_0_result_out),
+        .write_reg_en_out(exmem_0_write_reg_en_out),
+        .write_reg_addr_out(exmem_0_write_reg_addr_out),
+        .hilo_write_en_in(ex_0_hilo_write_en),
+        .hi_in(ex_0_hi_out),
+        .lo_in(ex_0_lo_out),
+        .hilo_write_en_out(exmem_0_hilo_write_en_out),
+        .hi_out(exmem_0_hi_out),
+        .lo_out(exmem_0_lo_out),
+        .mem_read_flag_in(ex_0_mem_read_flag_out),
+        .mem_write_flag_in(ex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_in(ex_0_mem_sign_ext_flag_out),
+        .mem_sel_in(ex_0_mem_sel_out),
+        .mem_write_data_in(ex_0_mem_write_data_out),
+        .mem_read_flag_out(exmem_0_mem_read_flag_out),
+        .mem_write_flag_out(exmem_0_mem_write_flag_out),
+        .mem_sign_ext_flag_out(exmem_0_mem_sign_ext_flag_out),
+        .mem_sel_out(exmem_0_mem_sel_out),
+        .mem_write_data_out(exmem_0_mem_write_data_out)
+    );
+
+    MEM mem_0(
+        .rst(rst_1),
+        .result_in(exmem_0_result_out),
+        .write_reg_en_in(exmem_0_write_reg_en_out),
+        .write_reg_addr_in(exmem_0_write_reg_addr_out),
+        .result_out(mem_0_result_out),
+        .write_reg_en_out(mem_0_write_reg_en_out),
+        .write_reg_addr_out(mem_0_write_reg_addr_out),
+        .hilo_write_en_in(exmem_0_hilo_write_en_out),
+        .hi_in(exmem_0_hi_out),
+        .lo_in(exmem_0_lo_out),
+        .hilo_write_en_out(mem_0_hilo_write_en_out),
+        .hi_out(mem_0_hi_out),
+        .lo_out(mem_0_lo_out),
+        .ram_en(mem_0_ram_en),
+        .ram_write_en(mem_0_ram_write_en),
+        .ram_write_sel(mem_0_ram_write_sel),
+        .ram_addr(mem_0_ram_addr),
+        .ram_write_data(mem_0_ram_write_data),
+        .ram_read_data(ram_0_data_out),
+        .mem_read_flag(exmem_0_mem_read_flag_out),
+        .mem_write_flag(exmem_0_mem_write_flag_out),
+        .mem_sign_ext_flag(exmem_0_mem_sign_ext_flag_out),
+        .mem_sel(exmem_0_mem_sel_out),
+        .mem_write_data(exmem_0_mem_write_data_out)
+    );
+
+    RAM ram_0(
+        .clk(clk_1),
+        .rst(rst_1),
+        .en(mem_0_ram_en),
+        .write_en(mem_0_ram_write_en),
+        .write_sel(mem_0_ram_write_sel),
+        .addr(mem_0_ram_addr),
+        .data_in(mem_0_ram_write_data),
+        .data_out(ram_0_data_out)
     );
 
 endmodule // Uranus
