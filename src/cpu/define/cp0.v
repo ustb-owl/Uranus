@@ -1,7 +1,7 @@
 // coprocessor instructions
 `define CP0_MFC0          5'b00000
 `define CP0_MTC0          5'b00100
-`define CP0_ERET          5'100000
+`define CP0_ERET          5'b10000
 
 `define CP0_REG_COUNT     5'b01001
 `define CP0_REG_COMPARE   5'b01011
