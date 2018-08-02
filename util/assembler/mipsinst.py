@@ -345,9 +345,12 @@ class AsmGenerator(object):
             # position tag definition
             tag = opcode[:-1]
             self.__tags[tag] = self.__get_pos()
-            for builder in self.__undef_tags.get(tag, []):
-                byte = builder.build(self.__tags)
-                self.__append(byte, builder.inst(), builder.position)
+            unfilled = self.__undef_tags.get(tag)
+            if unfilled:
+                for builder in unfilled:
+                    byte = builder.build(self.__tags)
+                    self.__append(byte, builder.inst(), builder.position)
+                self.__undef_tags.pop(tag)
             return True
         else:
             # other instructions
@@ -372,7 +375,7 @@ class AsmGenerator(object):
     def generate(self):
         if self.__undef_tags:
             msg_list = []
-            for tag, l in self.__undef_tags.values():
+            for tag, l in self.__undef_tags.items():
                 text = '"%s" in ' % tag
                 insts = map(lambda x: '"%s"' % x.inst(), l)
                 msg_list.append(text + ', '.join(insts))
