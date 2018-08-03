@@ -1,6 +1,7 @@
 import mipsdef
 
 
+# exception definitions
 class TagUndefError(Exception):
     def __init__(self, tag):
         super().__init__()
@@ -14,6 +15,7 @@ class PseudoError(Exception):
         self.inst = inst
 
 
+# class definitions
 class _InstBuilder(object):
     def __init__(self, opcode, body, position):
         self.opcode = opcode

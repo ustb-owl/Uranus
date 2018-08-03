@@ -10,24 +10,26 @@ class _Converter(object):
     def read(self):
         return self.__stream.read()
     
-    def write(self, path):
-        with open(path, 'wb') as f:
-            self.__stream.write(f)
+    def write(self, b):
+        self.__stream.write(b)
 
-    def convert(self):
+    def convert(self, path):
         raise NotImplementedError
 
 
+# to *.coe file
 class CoeConverter(_Converter):
-    def convert(self):
+    def convert(self, path):
         pass
 
 
+# to file that can be read by '$readmemh'
 class HexConverter(_Converter):
-    def convert(self):
+    def convert(self, path):
         pass
 
 
+# to binary file
 class BinaryConverter(_Converter):
-    def convert(self):
+    def convert(self, path):
         pass
