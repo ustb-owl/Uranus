@@ -1,10 +1,18 @@
-import mipsdef, re
+import mipsdef
 
 
 class TagUndefError(Exception):
     def __init__(self, tag):
         super().__init__()
         self.tag = tag
+
+class PseudoError(Exception):
+    def __init__(self, byte0, byte1, inst):
+        super().__init__()
+        self.byte0 = byte0
+        self.byte1 = byte1
+        self.inst = inst
+
 
 class _InstBuilder(object):
     def __init__(self, opcode, body, position):
@@ -278,7 +286,7 @@ class SingleInstBuilder(_InstBuilder):
         inst += imm
         return self._get_byte(inst)
 
-class PsudoInstBuilder(_InstBuilder):
+class PseudoInstBuilder(_InstBuilder):
     def build(self, tags):
         if self.opcode == 'nop':
             self._trim_body(0)
@@ -286,103 +294,36 @@ class PsudoInstBuilder(_InstBuilder):
         else:
             self._trim_body(2)
             new_body = [self.body[0], '$0', self.body[1]]
-            if self.opcode == 'li':
-                op = 'ori'
-            elif self.opcode == 'move':
-                op = 'or'
-            else:   # mov
+            if self.opcode == 'move':
+                b = RTypeInstBuilder('or', new_body, self.position)
                 try:
-                    self._get_imm(new_body[2])
-                    op = 'ori'
+                    return b.build(tags)
+                except RuntimeError:
+                    self._raise_error()
+            else:   # li & la
+                # try to get immediate or value of tag
+                try:
+                    imm = eval(self.body[1])
+                    if not isinstance(imm, int):
+                        self._raise_error()
                 except:
-                    op = 'or'
-            builder = ITypeInstBuilder(op, new_body, self.position)
-            try:
-                return builder.build(tags)
-            except RuntimeError:
-                self._raise_error()
-
-
-class AsmGenerator(object):
-    def __init__(self):
-        self.__builders = [
-            (mipsdef.r_type, RTypeInstBuilder),
-            (mipsdef.i_type, ITypeInstBuilder),
-            (mipsdef.mul_div_type, MulDivInstBuilder),
-            (mipsdef.mul_div_type, MulDivInstBuilder),
-            (mipsdef.shift_type, ShiftInstBuilder),
-            (mipsdef.branch_type, BranchInstBuilder),
-            (mipsdef.jump_type, JumpInstBuilder),
-            (mipsdef.move_type, MoveInstBuilder),
-            (mipsdef.trap_type, TrapInstBuilder),
-            (mipsdef.mem_type, MemInstBuilder),
-            (mipsdef.cp0_type, CP0InstBuilder),
-            (mipsdef.single_type, SingleInstBuilder),
-            (mipsdef.psudo_type, PsudoInstBuilder)
-        ]
-        self.__pattern = '{byte}   // {inst}'
-        self.__content = []
-        self.__tags = {}
-        self.__undef_tags = {}
-
-    def __append(self, byte, inst, pos=None):
-        text = self.__pattern.format(byte=byte, inst=inst)
-        if pos is None:
-            self.__content.append(text)
-        else:
-            self.__content[pos] = text
-
-    def __get_pos(self):
-        return len(self.__content)
-
-    def update(self, inst: str):
-        body = re.split(r',\s*|\s+', inst.lower())
-        opcode = body.pop(0)
-        if not opcode or opcode.startswith('#'):
-            # blank or comment
-            return True
-        elif opcode.endswith(':'):
-            # position tag definition
-            tag = opcode[:-1]
-            self.__tags[tag] = self.__get_pos()
-            unfilled = self.__undef_tags.get(tag)
-            if unfilled:
-                for builder in unfilled:
-                    byte = builder.build(self.__tags)
-                    self.__append(byte, builder.inst(), builder.position)
-                self.__undef_tags.pop(tag)
-            return True
-        else:
-            # other instructions
-            for type_list, builder in self.__builders:
-                if opcode in type_list:
-                    b = builder(opcode, body, self.__get_pos())
-                    try:
-                        self.__append(b.build(self.__tags), inst)
-                    except TagUndefError as e:
-                        self.__append('00 00 00 00', 'TAG UNDEF')
-                        l = self.__undef_tags.get(e.tag, [])
-                        l.append(b)
-                        self.__undef_tags[e.tag] = l
-                    return True
-        return False
-    
-    def clear(self):
-        self.__content.clear()
-        self.__tags.clear()
-        self.__undef_tags.clear()
-
-    def generate(self):
-        if self.__undef_tags:
-            msg_list = []
-            for tag, l in self.__undef_tags.items():
-                text = '"%s" in ' % tag
-                insts = map(lambda x: '"%s"' % x.inst(), l)
-                msg_list.append(text + ', '.join(insts))
-            raise RuntimeError('undefined tags: %s' % ', '.join(msg_list))
-        return '\n'.join(self.__content)
-
-
-if __name__ == '__main__':
-    # NOTE: write test code here
-    pass
+                    imm = tags.get(self.body[1])
+                    if imm is None:
+                        # NOTE: 'la' & 'li' can only recognize tags before
+                        #       current instruction, so '.data' must in front
+                        #       of the '.text' segment
+                        self._raise_error()
+                # get the low & high part of immediate
+                imm_lo = imm & 0x0000ffff
+                imm_hi = (imm & 0xffff0000) >> 16
+                # get the bytes of instruction
+                try:
+                    new_body[2] = str(imm_lo)
+                    b = ITypeInstBuilder('ori', new_body, self.position)
+                    lo_inst = b.build(tags)
+                    new_body[1] = str(imm_hi)
+                    b = SingleInstBuilder('lui', new_body, self.position)
+                    hi_inst = b.build(tags)
+                except RuntimeError:
+                    self._raise_error()
+                raise PseudoError(hi_inst, lo_inst, self.inst())

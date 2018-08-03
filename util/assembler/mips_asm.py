@@ -1,5 +1,5 @@
 import sys
-import mipsinst
+import asmgen
 
 '''
 usage:
@@ -21,7 +21,7 @@ def main():
         bin_path = path[:path.rfind('.')] + '.bin'
 
     # generate bin file
-    generator = mipsinst.AsmGenerator()
+    generator = asmgen.AsmGenerator()
     with open(path, 'r') as f:
         for l in f.readlines():
             line = l.strip()

@@ -287,6 +287,6 @@ single_type = [
     'lui', 'eret'
 ]
 
-psudo_type = [
-    'li', 'move', 'mov', 'nop'
+pseudo_type = [
+    'li', 'la', 'move', 'nop'
 ]
