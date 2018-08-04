@@ -321,6 +321,7 @@ class PseudoInstBuilder(_InstBuilder):
                 # get the bytes of instruction
                 try:
                     new_body[2] = str(imm_lo)
+                    new_body[1] = new_body[0]
                     b = ITypeInstBuilder('ori', new_body, self.position)
                     lo_inst = b.build(tags)
                     new_body[1] = str(imm_hi)
