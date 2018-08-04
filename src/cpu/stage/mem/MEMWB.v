@@ -68,7 +68,7 @@ module MEMWB(
 
     PipelineDeliver #(`ADDR_BUS_WIDTH) ff_debug_pc_addr(
         clk, rst,
-        stall_current_stage, stall_next_stage,
+        0, 0,
         debug_pc_addr_in, debug_pc_addr_out
     );
 
