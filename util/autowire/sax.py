@@ -32,7 +32,14 @@ class BlockDesignSaxHandler(object):
             self.__cur_attrs = attrs
             if tag_test('design', 'adHocConnections', 'adHocConnection'):
                 if tag_test('externalPortReference', back=True):
-                    self.__cur_ast.reference = attr_test('portRef')
+                    port_name = attr_test('portRef')
+                    if self.__file_ast.ports[port_name].direction == 'in':
+                        self.__cur_ast.reference = port_name
+                    else:   # out & inout
+                        assign = VerilogAssignAST()
+                        assign.name = port_name
+                        assign.reference = self.__cur_ast.name
+                        self.__file_ast.assigns.append(assign)
                 if tag_test('internalPortReference', back=True):
                     con_ast = VerilogIOConnectionAST()
                     con_ast.port_name = attr_test('portRef')
@@ -40,8 +47,6 @@ class BlockDesignSaxHandler(object):
                     mod_ref = attr_test('componentRef')
                     mod_ast = self.__file_ast.modules[mod_ref]
                     mod_ast.connections.append(con_ast)
-                    # if mod_ast.module_name == 'adProxy':
-                    #     print(mod_ast.instance_name)
                     bus = self.scanner.get_bus(mod_ast.module_name, con_ast.port_name)
                     if self.__cur_ast.bus != bus:
                         self.__cur_ast.bus = bus
