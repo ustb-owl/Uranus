@@ -42,7 +42,7 @@ module MEM(
     assign hilo_write_en_out = rst ? hilo_write_en_in : 0;
     assign hi_out = rst ? hi_in : 0;
     assign lo_out = rst ? lo_in : 0;
-    assign debug_pc_addr_out = debug_pc_addr_out;
+    assign debug_pc_addr_out = debug_pc_addr_in;
 
     wire[`ADDR_BUS] address = result_in;
 

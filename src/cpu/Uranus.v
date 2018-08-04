@@ -50,8 +50,8 @@ module Uranus(
     wire mem_0_write_reg_en_out;
     wire[4:0] mem_0_write_reg_addr_out;
     wire memwb_0_write_reg_en_out;
-    wire[31:0] memwb_0_result_out = debug_reg_write_data;
-    wire[4:0] memwb_0_write_reg_addr_out = debug_reg_write_addr;
+    wire[31:0] memwb_0_result_out;
+    wire[4:0] memwb_0_write_reg_addr_out;
     wire[31:0] regreadproxy_0_read_data_1;
     wire[31:0] regreadproxy_0_read_data_2;
     wire[31:0] regfile_0_read_data_1;
@@ -95,24 +95,37 @@ module Uranus(
     wire[3:0] exmem_0_mem_sel_out;
     wire[31:0] exmem_0_mem_write_data_out;
     wire[31:0] ram_read_data_1 = ram_read_data;
-    wire[31:0] mem_0_ram_write_data = ram_write_data;
-    wire[31:0] mem_0_ram_addr = ram_addr;
-    wire[3:0] mem_0_ram_write_sel = ram_write_en;
-    wire mem_0_ram_en = ram_en;
+    wire[31:0] mem_0_ram_write_data;
+    wire[31:0] mem_0_ram_addr;
+    wire[3:0] mem_0_ram_write_sel;
+    wire mem_0_ram_en;
     wire clk_1 = clk;
     wire rst_1 = rst;
     wire[31:0] rom_read_data_1 = rom_read_data;
-    wire[31:0] memwb_0_debug_pc_addr_out = debug_pc_addr;
-    wire[3:0] memwb_0_debug_reg_write_en = debug_reg_write_en;
-    wire pc_0_rom_en = rom_en;
-    wire[3:0] pc_0_rom_write_en = rom_write_en;
-    wire[31:0] pc_0_rom_addr = rom_addr;
-    wire[31:0] pc_0_rom_write_data = rom_write_data;
+    wire[31:0] memwb_0_debug_pc_addr_out;
+    wire[3:0] memwb_0_debug_reg_write_en;
+    wire pc_0_rom_en;
+    wire[3:0] pc_0_rom_write_en;
+    wire[31:0] pc_0_rom_addr;
+    wire[31:0] pc_0_rom_write_data;
     wire[31:0] id_0_debug_pc_addr;
     wire[31:0] idex_0_debug_pc_addr_out;
     wire[31:0] ex_0_debug_pc_addr_out;
     wire[31:0] exmem_0_debug_pc_addr_out;
     wire[31:0] mem_0_debug_pc_addr_out;
+
+    assign debug_reg_write_data = memwb_0_result_out;
+    assign debug_reg_write_addr = memwb_0_write_reg_addr_out;
+    assign ram_write_data = mem_0_ram_write_data;
+    assign ram_addr = mem_0_ram_addr;
+    assign ram_write_en = mem_0_ram_write_sel;
+    assign ram_en = mem_0_ram_en;
+    assign debug_pc_addr = memwb_0_debug_pc_addr_out;
+    assign debug_reg_write_en = memwb_0_debug_reg_write_en;
+    assign rom_en = pc_0_rom_en;
+    assign rom_write_en = pc_0_rom_write_en;
+    assign rom_addr = pc_0_rom_addr;
+    assign rom_write_data = pc_0_rom_write_data;
 
     IFID ifid_0(
         .addr_out(ifid_0_addr_out),

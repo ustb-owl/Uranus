@@ -15,7 +15,7 @@ module PC(
     output [`DATA_BUS] rom_write_data
 );
 
-    assign rom_wen = 0;
+    assign rom_write_en = 0;
     assign rom_write_data = 0;
 
     always @(posedge clk) begin

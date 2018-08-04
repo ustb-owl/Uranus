@@ -41,12 +41,19 @@ module CPU_tb();
     );
 
     RAM_tb ram(
-        clk, rst, ram_en, ram_write_en,
-        ram_addr, ram_write_data, ram_read_data
+        .clk(clk),
+        .rst(rst),
+        .en(ram_en),
+        .write_sel(ram_write_en),
+        .addr(ram_addr),
+        .data_in(ram_write_data),
+        .data_out(ram_read_data)
     );
 
     ROM_tb rom(
-        rom_en, rom_addr, rom_read_data
+        .en(rom_en),
+        .addr(rom_addr),
+        .inst(rom_read_data)
     );
 
     initial begin
