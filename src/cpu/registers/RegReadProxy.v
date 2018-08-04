@@ -8,21 +8,31 @@ module RegReadProxy(
     input read_en_2,
     input [`REG_ADDR_BUS] read_addr_1,
     input [`REG_ADDR_BUS] read_addr_2,
-    // data from regfile
+    // input from regfile
     input [`DATA_BUS] data_1_from_reg,
     input [`DATA_BUS] data_2_from_reg,
-    // data from EX stage
+    // input from EX stage
     input reg_write_en_from_ex,
     input [`REG_ADDR_BUS] reg_write_addr_from_ex,
     input [`DATA_BUS] data_from_ex,
-    // data from MEM stage
+    input ex_load_flag,   // solve data hazards
+    // input from MEM stage
     input reg_write_en_from_mem,
     input [`REG_ADDR_BUS] reg_write_addr_from_mem,
     input [`DATA_BUS] data_from_mem,
+    // load related signals
+    output load_related_1,
+    output load_related_2,
     // reg data output
     output reg[`DATA_BUS] read_data_1,
     output reg[`DATA_BUS] read_data_2
 );
+
+    // generate load related signals
+    assign load_related_1 = ex_load_flag && read_en_1
+            && read_addr_1 == reg_write_addr_from_ex;
+    assign load_related_2 = ex_load_flag && read_en_2
+            && read_addr_2 == reg_write_addr_from_ex;
 
     // generate output read_data_1
     always @(*) begin
