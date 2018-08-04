@@ -3,6 +3,8 @@
 module PipelineDeliver #(parameter width = 1) (
     input clk,
     input rst,
+    input stall_current_stage,
+    input stall_next_stage,
     input [width - 1:0] in,
     output reg[width - 1:0] out
 );
@@ -11,9 +13,12 @@ module PipelineDeliver #(parameter width = 1) (
         if (!rst) begin
             out <= 0;
         end
-        else begin
+        else if (stall_current_stage && !stall_next_stage) begin
+            out <= 0;
+        end
+        else if (!stall_current_stage) begin
             out <= in;
         end
     end
 
-endmodule // PiplineDeliver
+endmodule // PipelineDeliver
