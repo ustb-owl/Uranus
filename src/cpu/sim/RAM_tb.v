@@ -2,11 +2,10 @@
 
 `include "../define/bus.v"
 
-module RAM(
+module RAM_tb(
     input clk,
     input rst,
     input en,
-    input write_en,
     input [3:0] write_sel,
     input [`ADDR_BUS] addr,
     input [`DATA_BUS] data_in,
@@ -20,7 +19,7 @@ module RAM(
     reg[7:0] ram2[0:kSubRamSize - 1];
     reg[7:0] ram3[0:kSubRamSize - 1];
 
-    wire out_en = rst && en && !write_en;
+    wire out_en = rst && en && !write_sel;
     always @(*) begin
         data_out[7:0] = out_en && !addr[31:9] && !addr[1:0] ?
                 ram3[addr[31:2]] : 8'b0;
@@ -34,7 +33,7 @@ module RAM(
 
     reg inner_en;
     always @(posedge clk) begin
-        inner_en <= write_en && en && rst;
+        inner_en <= write_sel && en && rst;
     end
 
     always @(posedge inner_en) begin
@@ -46,4 +45,4 @@ module RAM(
         end
     end
 
-endmodule // RAM
+endmodule // RAM_tb

@@ -2,7 +2,7 @@
 
 `include "../define/bus.v"
 
-module ROM(
+module ROM_tb(
     input en,
     input [`ADDR_BUS] addr,
     output [`INST_BUS] inst
@@ -20,4 +20,4 @@ module ROM(
     assign inst[23:16] = en ? rom[addr + 1] : 8'b0;
     assign inst[31:24] = en ? rom[addr + 0] : 8'b0;
 
-endmodule // ROM
+endmodule // ROM_tb
