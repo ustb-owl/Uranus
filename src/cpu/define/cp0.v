@@ -3,6 +3,7 @@
 `define CP0_MTC0          5'b00100
 `define CP0_ERET          5'b10000
 
+// coprocessor 0 address definitions
 `define CP0_REG_COUNT     5'b01001
 `define CP0_REG_COMPARE   5'b01011
 `define CP0_REG_STATUS    5'b01100
