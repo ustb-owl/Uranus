@@ -159,6 +159,7 @@ class BranchInstBuilder(_InstBuilder):
             pos = tags.get(imm_str)
             if pos is not None:
                 imm = pos - (self.position + 1)
+                imm &= 0xffff
             else:
                 self._raise_error(imm_str)
         inst += rs << 21
