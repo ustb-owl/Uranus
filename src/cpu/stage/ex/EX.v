@@ -21,6 +21,10 @@ module EX(
     // HI & LO data
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
+    // stall request
+    output stall_request,
+    // to ID stage (solve data hazards)
+    output ex_load_flag,
     // to MEM stage
     output mem_read_flag_out,
     output mem_write_flag_out,
@@ -42,14 +46,21 @@ module EX(
     // store the result of ALU
     reg[`DATA_BUS] result;
 
-    assign result_out = rst ? result : 0;
-    assign write_reg_addr_out = rst ? write_reg_addr_in : 0;
+    // to ID stage
+    assign ex_load_flag = rst ? mem_read_flag_in : 0;
+    // to MEM stage
     assign mem_read_flag_out = rst ? mem_read_flag_in : 0;
     assign mem_write_flag_out = rst ? mem_write_flag_in : 0;
     assign mem_sign_ext_flag_out = rst ? mem_sign_ext_flag_in : 0;
     assign mem_sel_out = rst ? mem_sel_in : 0;
     assign mem_write_data_out = rst ? mem_write_data_in : 0;
+    // to WB stage
+    assign result_out = rst ? result : 0;
+    assign write_reg_addr_out = rst ? write_reg_addr_in : 0;
+    // debug signal
     assign debug_pc_addr_out = debug_pc_addr_in;
+
+    assign stall_request = 0;
 
     // store HI & LO
     wire[`DATA_BUS] hi = hi_in;

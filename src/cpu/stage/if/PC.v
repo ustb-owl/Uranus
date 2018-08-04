@@ -5,6 +5,8 @@
 module PC(
     input clk,
     input rst,
+    // stall signal
+    input stall_pc,
     // branch control
     input branch_flag,
     input [`ADDR_BUS] branch_addr,
@@ -26,11 +28,13 @@ module PC(
         if (!rom_en) begin
             rom_addr <= `ADDR_BUS_WIDTH'hbfc00000;
         end
-        else if (branch_flag) begin
-            rom_addr <= branch_addr;
-        end
-        else begin
-            rom_addr <= rom_addr + 4;
+        else if (!stall_pc) begin
+            if (branch_flag) begin
+                rom_addr <= branch_addr;
+            end
+            else begin
+                rom_addr <= rom_addr + 4;
+            end
         end
     end
 

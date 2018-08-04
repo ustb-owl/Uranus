@@ -12,6 +12,9 @@ module ID(
     // from IF stage (PC)
     input [`ADDR_BUS] addr,
     input [`INST_BUS] inst,
+    // load related signals
+    input load_related_1,
+    input load_related_2,
     // from/to regfile
     input [`DATA_BUS] reg_data_1,
     input [`DATA_BUS] reg_data_2,
@@ -19,6 +22,8 @@ module ID(
     output reg reg_read_en_2,
     output reg[`REG_ADDR_BUS] reg_addr_1,
     output reg[`REG_ADDR_BUS] reg_addr_2,
+    // stall request
+    output stall_request,
     // to IF stage
     output reg branch_flag,
     output reg[`ADDR_BUS] branch_addr,
@@ -39,6 +44,7 @@ module ID(
     output [`ADDR_BUS] debug_pc_addr
 );
 
+    // debug signal
     assign debug_pc_addr = addr;
 
     // extract information from instruction
@@ -56,6 +62,9 @@ module ID(
     wire[`DATA_BUS] zero_extended_imm = {16'b0, inst_imm};
     wire[`DATA_BUS] zero_extended_imm_hi = {inst_imm, 16'b0};
     wire[`DATA_BUS] sign_extended_imm = {{16{inst_imm[15]}}, inst_imm};
+
+    // generate the stall request signal
+    assign stall_request = rst ? load_related_1 || load_related_2 : 0;
 
     // generate address of registers to be read
     always @(*) begin
