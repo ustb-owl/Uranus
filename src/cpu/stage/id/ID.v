@@ -35,8 +35,11 @@ module ID(
     output reg[`DATA_BUS] mem_write_data,
     // to WB stage (write back to regfile)
     output reg write_reg_en,
-    output reg[`REG_ADDR_BUS] write_reg_addr
+    output reg[`REG_ADDR_BUS] write_reg_addr,
+    output [`ADDR_BUS] debug_pc_addr
 );
+
+    assign debug_pc_addr = addr;
 
     // extract information from instruction
     wire[`INST_OP_BUS] inst_op = inst[`SEG_OPCODE];
@@ -249,7 +252,7 @@ module ID(
     end
 
     // generate branch address
-    wire[`ADDR_BUS] addr_plus_4 = addr + 32'h4;
+    wire[`ADDR_BUS] addr_plus_4 = addr + 4;
     wire[25:0] jump_addr = inst[25:0];
     wire[`DATA_BUS] sign_extended_imm_sll2 = {{14{inst[15]}}, inst[15:0], 2'b00};
 

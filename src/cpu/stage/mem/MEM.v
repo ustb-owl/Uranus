@@ -17,11 +17,11 @@ module MEM(
     input hilo_write_en_in,
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
+    input [`ADDR_BUS] debug_pc_addr_in,
     // RAM control signals
     input [`DATA_BUS] ram_read_data,
     output reg ram_en,
-    output reg ram_write_en,
-    output reg[3:0] ram_write_sel,
+    output reg[3:0] ram_write_en,
     output reg[`ADDR_BUS] ram_addr,
     output reg[`DATA_BUS] ram_write_data,
     // to WB stage
@@ -30,14 +30,19 @@ module MEM(
     output [`REG_ADDR_BUS] write_reg_addr_out,
     output hilo_write_en_out,
     output [`DATA_BUS] hi_out,
-    output [`DATA_BUS] lo_out
+    output [`DATA_BUS] lo_out,
+    output [`ADDR_BUS] debug_pc_addr_out
 );
+
+    // internal ram_write_sel control signal
+    reg[3:0] ram_write_sel;
 
     assign write_reg_en_out = rst ? write_reg_en_in : 0;
     assign write_reg_addr_out = rst ? write_reg_addr_in : 0;
     assign hilo_write_en_out = rst ? hilo_write_en_in : 0;
     assign hi_out = rst ? hi_in : 0;
     assign lo_out = rst ? lo_in : 0;
+    assign debug_pc_addr_out = debug_pc_addr_out;
 
     wire[`ADDR_BUS] address = result_in;
 
@@ -99,13 +104,13 @@ module MEM(
     // generate ram_write_en signal
     always @(*) begin
         if (!rst) begin
-            ram_write_en <= 0;
+            ram_write_en <= 4'b0000;
         end
         else if (mem_write_flag) begin
-            ram_write_en <= 1;
+            ram_write_en <= ram_write_sel;
         end
         else begin
-            ram_write_en <= 0;
+            ram_write_en <= 4'b0000;
         end
     end
 

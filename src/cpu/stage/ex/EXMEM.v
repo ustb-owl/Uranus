@@ -17,6 +17,7 @@ module EXMEM(
     input hilo_write_en_in,
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
+    input [`ADDR_BUS] debug_pc_addr_in,
     // output to MEM stage
     output mem_read_flag_out,
     output mem_write_flag_out,
@@ -30,7 +31,9 @@ module EXMEM(
     // HI & LO control
     output hilo_write_en_out,
     output [`DATA_BUS] hi_out,
-    output [`DATA_BUS] lo_out
+    output [`DATA_BUS] lo_out,
+    // debug signal
+    output [`ADDR_BUS] debug_pc_addr_out
 );
 
     PipelineDeliver #(1) ff_mem_read_flag(
@@ -84,6 +87,11 @@ module EXMEM(
 
     PipelineDeliver #(`DATA_BUS_WIDTH) ff_lo(
         clk, rst, lo_in, lo_out
+    );
+
+    PipelineDeliver #(`ADDR_BUS_WIDTH) ff_debug_pc_addr(
+        clk, rst,
+        debug_pc_addr_in, debug_pc_addr_out
     );
 
 endmodule // EXMEM

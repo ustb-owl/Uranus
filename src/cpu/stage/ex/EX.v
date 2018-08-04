@@ -17,6 +17,7 @@ module EX(
     input [`DATA_BUS] mem_write_data_in,
     input  write_reg_en_in,
     input [`REG_ADDR_BUS] write_reg_addr_in,
+    input [`ADDR_BUS] debug_pc_addr_in,
     // HI & LO data
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
@@ -33,7 +34,9 @@ module EX(
     // HI & LO control
     output reg hilo_write_en,
     output reg[`DATA_BUS] hi_out,
-    output reg[`DATA_BUS] lo_out
+    output reg[`DATA_BUS] lo_out,
+    // debug signal
+    output [`ADDR_BUS] debug_pc_addr_out
 );
 
     // store the result of ALU
@@ -46,6 +49,7 @@ module EX(
     assign mem_sign_ext_flag_out = rst ? mem_sign_ext_flag_in : 0;
     assign mem_sel_out = rst ? mem_sel_in : 0;
     assign mem_write_data_out = rst ? mem_write_data_in : 0;
+    assign debug_pc_addr_out = debug_pc_addr_in;
 
     // store HI & LO
     wire[`DATA_BUS] hi = hi_in;
