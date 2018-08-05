@@ -9,7 +9,7 @@ module PipelineDeliver #(parameter width = 1) (
     output reg[width - 1:0] out
 );
 
-    always@(posedge clk) begin
+    always @(posedge clk) begin
         if (!rst) begin
             out <= 0;
         end
