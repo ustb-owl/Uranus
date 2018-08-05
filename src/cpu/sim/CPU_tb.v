@@ -51,6 +51,8 @@ module CPU_tb();
     );
 
     ROM_tb rom(
+        .clk(clk),
+        .rst(rst),
         .en(rom_en),
         .addr(rom_addr),
         .inst(rom_read_data)

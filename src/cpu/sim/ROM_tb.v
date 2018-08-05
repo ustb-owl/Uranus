@@ -3,9 +3,12 @@
 `include "../define/bus.v"
 
 module ROM_tb(
+    // synchronous ROM
+    input clk,
+    input rst,
     input en,
     input [`ADDR_BUS] addr,
-    output [`INST_BUS] inst
+    output reg[`INST_BUS] inst
 );
 
     reg[7:0] rom[0:511];
@@ -14,10 +17,18 @@ module ROM_tb(
         $readmemh("rom/inst.bin", rom);
     end
 
-    // big endian storage
-    assign inst[7:0] = en ? rom[(addr + 3) & 32'h000fffff] : 8'b0;
-    assign inst[15:8] = en ? rom[(addr + 2) & 32'h000fffff] : 8'b0;
-    assign inst[23:16] = en ? rom[(addr + 1) & 32'h000fffff] : 8'b0;
-    assign inst[31:24] = en ? rom[(addr + 0) & 32'h000fffff] : 8'b0;
+    always @(posedge clk) begin
+        if (!rst || !en) begin
+            inst <= 0;
+        end
+        else begin
+            // big endian storage
+            inst[7:0] <= rom[(addr + 3) & 32'h000fffff];
+            inst[15:8] <= rom[(addr + 2) & 32'h000fffff];
+            inst[23:16] <= rom[(addr + 1) & 32'h000fffff];
+            inst[31:24] <= rom[(addr + 0) & 32'h000fffff];
+        end
+    end
+
 
 endmodule // ROM_tb
