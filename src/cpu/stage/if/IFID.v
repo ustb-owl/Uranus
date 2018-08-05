@@ -19,7 +19,7 @@ module IFID(
         addr_in, addr_out
     );
 
-    PipelineDeliver #(`INST_BUS_WIDTH) ff_inst(
+    PipelineDeliverAsyn #(`INST_BUS_WIDTH) ff_inst(
         clk, rst,
         stall_current_stage, stall_next_stage,
         inst_in, inst_out
