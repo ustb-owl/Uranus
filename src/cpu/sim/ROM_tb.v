@@ -23,10 +23,10 @@ module ROM_tb(
         end
         else begin
             // big endian storage
-            inst[7:0] <= rom[(addr + 3) & 32'h000fffff];
-            inst[15:8] <= rom[(addr + 2) & 32'h000fffff];
-            inst[23:16] <= rom[(addr + 1) & 32'h000fffff];
-            inst[31:24] <= rom[(addr + 0) & 32'h000fffff];
+            inst[7:0] <= #0.1 rom[(addr + 3) & 32'h000fffff];
+            inst[15:8] <= #0.1 rom[(addr + 2) & 32'h000fffff];
+            inst[23:16] <= #0.1 rom[(addr + 1) & 32'h000fffff];
+            inst[31:24] <= #0.1 rom[(addr + 0) & 32'h000fffff];
         end
     end
 

@@ -33,7 +33,7 @@ module EX(
     output [`DATA_BUS] mem_write_data_out,
     // to WB stage
     output [`DATA_BUS] result_out,
-    output  write_reg_en_out,
+    output write_reg_en_out,
     output [`REG_ADDR_BUS] write_reg_addr_out,
     // HI & LO control
     output reg hilo_write_en,

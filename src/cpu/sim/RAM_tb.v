@@ -19,16 +19,27 @@ module RAM_tb(
     reg[7:0] ram2[0:kSubRamSize - 1];
     reg[7:0] ram3[0:kSubRamSize - 1];
 
+    integer i;
+    initial begin
+        for (i = 0; i < kSubRamSize; i = i + 1) begin
+            ram0[i] <= 0;
+            ram1[i] <= 0;
+            ram2[i] <= 0;
+            ram3[i] <= 0;
+        end
+    end
+
     wire out_en = rst && en && !write_sel;
-    always @(*) begin
-        data_out[7:0] = out_en && !addr[31:9] && !addr[1:0] ?
-                ram3[addr[31:2]] : 8'b0;
-        data_out[15: 8] = out_en && !addr[31:9] && !addr[1:0] ?
-                ram2[addr[31:2]] : 8'b0;
-        data_out[23:16] = out_en && !addr[31:9] && !addr[1:0] ?
-                ram1[addr[31:2]] : 8'b0;
-        data_out[31:24] = out_en && !addr[31:9] && !addr[1:0] ?
-                ram0[addr[31:2]] : 8'b0;
+    always @(posedge clk) begin
+        if (out_en && !addr[31:9] && !addr[1:0]) begin
+            data_out[7:0] <= ram3[addr[31:2]];
+            data_out[15:8] <= ram2[addr[31:2]];
+            data_out[23:16] <= ram1[addr[31:2]];
+            data_out[31:24] <= ram0[addr[31:2]];
+        end
+        else begin
+            data_out <= 0;
+        end
     end
 
     reg inner_en;

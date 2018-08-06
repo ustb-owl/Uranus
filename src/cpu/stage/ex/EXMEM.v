@@ -28,7 +28,7 @@ module EXMEM(
     output [`DATA_BUS] mem_write_data_out,
     // output to WB stage
     output [`DATA_BUS] result_out,
-    output  write_reg_en_out,
+    output write_reg_en_out,
     output [`REG_ADDR_BUS] write_reg_addr_out,
     // HI & LO control
     output hilo_write_en_out,
