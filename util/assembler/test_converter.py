@@ -1,6 +1,6 @@
 import unittest
 from unittest import TestCase
-from .converter import CoeConverter
+from converter import CoeConverter
 from io import StringIO
 
 
