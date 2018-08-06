@@ -1,12 +1,7 @@
 import mipsdef, re
 from mipsinst import *
 from enum import Enum, unique
-
-
-@unique
-class Segment(Enum):
-    Text = 0
-    Data = 1
+from .seg_def import Segment
 
 # TODO: implement this class
 class SegmentManager(object):
