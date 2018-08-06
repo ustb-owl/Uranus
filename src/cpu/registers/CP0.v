@@ -17,6 +17,7 @@ module CP0(
 );
 
     // Coprocessor 0 registers
+    reg[`DATA_BUS] reg_badvaddr;
     reg[`DATA_BUS] reg_count;
     reg[`DATA_BUS] reg_compare;
     reg[`DATA_BUS] reg_status;
@@ -29,11 +30,12 @@ module CP0(
     // write data into registers
     always @(posedge clk) begin
         if (!rst) begin
+            reg_badvaddr <= `CP0_REG_BADVADDR_VALUE;
             reg_count <= 0;
             reg_compare <= 0;
-            reg_status <= 0;
-            reg_cause <= 0;
-            reg_epc <= 0;
+            reg_status <= `CP0_REG_STATUS_VALUE;
+            reg_cause <= `CP0_REG_CAUSE_VALUE;
+            reg_epc <= `CP0_REG_EPC_VALUE;
             reg_config <= 0;
             reg_prid <= 0;
             reg_timer_int <= 0;
@@ -54,15 +56,13 @@ module CP0(
                         reg_timer_int <= 0;
                     end
                     `CP0_REG_STATUS: begin
-                        reg_status <= write_data;
+                        reg_status <= write_data & `CP0_REG_STATUS_MASK;
                     end
                     `CP0_REG_EPC: begin
                         reg_epc <= write_data;
                     end
                     `CP0_REG_CAUSE: begin
-                        reg_cause[9:8] <= write_data[9:8];
-                        reg_cause[23] <= write_data[23];
-                        reg_cause[22] <= write_data[22];
+                        reg_cause <= write_data & `CP0_REG_CAUSE_MASK;
                     end
                 endcase
             end
@@ -76,6 +76,7 @@ module CP0(
         end
         else begin
             case (read_addr)
+                `CP0_REG_BADVADDR: data_out <= reg_badvaddr;
                 `CP0_REG_COUNT: data_out <= reg_count;
                 `CP0_REG_COMPARE: data_out <= reg_compare;
                 `CP0_REG_STATUS: data_out <= reg_status;
