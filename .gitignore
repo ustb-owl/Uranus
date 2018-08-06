@@ -44,3 +44,6 @@ __pycache__
 util/assembler/asm
 util/autowire/bd
 util/*/out
+
+# PyCharm
+.idea/
