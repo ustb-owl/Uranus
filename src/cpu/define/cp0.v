@@ -22,9 +22,18 @@
 `define CP0_REG_CAUSE_MASK       32'h00000300
 `define CP0_REG_EPC_VALUE        32'h00000000
 `define CP0_REG_EPC_MASK         32'hffffffff
+// NOTE: 0x55 -> U -> USTB, 0x0000 -> Uranus Zero
+`define CP0_REG_PRID_VALUE       32'h00550000
+`define CP0_REG_PRID_MASK        32'h00000000
+`define CP0_REG_CONFIG_VALUE     32'h00008000
+`define CP0_REG_CONFIG_MASK      32'h00000000
+
+// Coprocessor 0 segment definitions
+`define CP0_SEG_HWI              15:10
+`define CP0_SEG_SWI              9:8
+`define CP0_SEG_EXCCODE          6:2
 
 // ExcCode definitions
-`define SEG_CP0_EXECODE          6:2
 `define CP0_EXECODE_INT          5'h00
 `define CP0_EXECODE_ADEL         5'h04
 `define CP0_EXECODE_ADES         5'h05

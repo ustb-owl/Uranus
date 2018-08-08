@@ -6,12 +6,13 @@
 module CP0(
     input clk,
     input rst,
-    input [`CP0_ADDR_BUS] read_addr,
-    // 6 external interrupt inputs
-    input [5:0] interrupt,
+    // control signals
     input write_en,
     input [`CP0_ADDR_BUS] write_addr,
+    input [`CP0_ADDR_BUS] read_addr,
     input [`DATA_BUS] write_data,
+    // hardware interrupt input & output
+    input [4:0] interrupt,
     // data output
     output reg[`DATA_BUS] data_out
 );
@@ -25,7 +26,7 @@ module CP0(
     reg[`DATA_BUS] reg_epc;
     reg[`DATA_BUS] reg_config;
     reg[`DATA_BUS] reg_prid;
-    reg reg_timer_int;
+    reg timer_int;
 
     // write data into registers
     always @(posedge clk) begin
@@ -36,15 +37,15 @@ module CP0(
             reg_status <= `CP0_REG_STATUS_VALUE;
             reg_cause <= `CP0_REG_CAUSE_VALUE;
             reg_epc <= `CP0_REG_EPC_VALUE;
-            reg_config <= 0;
-            reg_prid <= 0;
-            reg_timer_int <= 0;
+            reg_prid <= `CP0_REG_PRID_VALUE;
+            reg_config <= `CP0_REG_CONFIG_VALUE;
+            timer_int <= 0;
         end
         else begin
             reg_count <= reg_count + 1;
-            reg_cause[15:10] <= interrupt;
+            reg_cause[`CP0_SEG_HWI] <= {timer_int, interrupt};
             if (reg_compare && reg_count == reg_compare) begin
-                reg_timer_int <= 1;
+                timer_int <= 1;
             end
             if (write_en) begin
                 case (write_addr)
@@ -53,7 +54,7 @@ module CP0(
                     end
                     `CP0_REG_COMPARE: begin
                         reg_compare <= write_data;
-                        reg_timer_int <= 0;
+                        timer_int <= 0;
                     end
                     `CP0_REG_STATUS: begin
                         reg_status <= write_data & `CP0_REG_STATUS_MASK;
