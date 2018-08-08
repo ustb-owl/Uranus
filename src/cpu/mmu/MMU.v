@@ -12,7 +12,7 @@ module MMU(
 
     always @(*) begin
         if (!rst) begin
-            ram_addr_in <= 0;
+            ram_addr_out <= 0;
         end
         else begin
             if (`RAM_RANGE(0, 32'h7fff_ffff)) begin
