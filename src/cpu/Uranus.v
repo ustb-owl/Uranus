@@ -170,6 +170,8 @@ module Uranus(
     wire[31:0] idex_0_cp0_write_data_out;
     wire[31:0] cp0_0_data_out;
     wire[31:0] cp0readproxy_0_cp0_read_data_out;
+    wire multdiv_0_done;
+    wire[63:0] multdiv_0_result;
 
     assign ram_write_data = mem_0_ram_write_data;
     assign ram_write_en = mem_0_ram_write_sel;
@@ -350,46 +352,6 @@ module Uranus(
         .cp0_write_data_out(idex_0_cp0_write_data_out)
     );
 
-    EX ex_0(
-        .funct(idex_0_funct_out),
-        .shamt(idex_0_shamt_out),
-        .operand_1(idex_0_operand_1_out),
-        .operand_2(idex_0_operand_2_out),
-        .write_reg_en_in(idex_0_write_reg_en_out),
-        .write_reg_addr_in(idex_0_write_reg_addr_out),
-        .result_out(ex_0_result_out),
-        .write_reg_en_out(ex_0_write_reg_en_out),
-        .write_reg_addr_out(ex_0_write_reg_addr_out),
-        .hilo_write_en(ex_0_hilo_write_en),
-        .hi_out(ex_0_hi_out),
-        .lo_out(ex_0_lo_out),
-        .hi_in(hiloreadproxy_0_hi_out),
-        .lo_in(hiloreadproxy_0_lo_out),
-        .mem_read_flag_in(idex_0_mem_read_flag_out),
-        .mem_write_flag_in(idex_0_mem_write_flag_out),
-        .mem_sign_ext_flag_in(idex_0_mem_sign_ext_flag_out),
-        .mem_sel_in(idex_0_mem_sel_out),
-        .mem_write_data_in(idex_0_mem_write_data_out),
-        .mem_read_flag_out(ex_0_mem_read_flag_out),
-        .mem_write_flag_out(ex_0_mem_write_flag_out),
-        .mem_sign_ext_flag_out(ex_0_mem_sign_ext_flag_out),
-        .mem_sel_out(ex_0_mem_sel_out),
-        .mem_write_data_out(ex_0_mem_write_data_out),
-        .rst(rst_1),
-        .debug_pc_addr_in(idex_0_debug_pc_addr_out),
-        .debug_pc_addr_out(ex_0_debug_pc_addr_out),
-        .stall_request(ex_0_stall_request),
-        .ex_load_flag(ex_0_ex_load_flag),
-        .cp0_write_en(ex_0_cp0_write_en),
-        .cp0_addr_out(ex_0_cp0_addr_out),
-        .cp0_write_data_out(ex_0_cp0_write_data_out),
-        .cp0_write_flag_in(idex_0_cp0_write_flag_out),
-        .cp0_read_flag_in(idex_0_cp0_read_flag_out),
-        .cp0_addr_in(idex_0_cp0_addr_out),
-        .cp0_write_data_in(idex_0_cp0_write_data_out),
-        .cp0_read_data_in(cp0readproxy_0_cp0_read_data_out)
-    );
-
     MEM mem_0(
         .result_in(exmem_0_result_out),
         .write_reg_en_in(exmem_0_write_reg_en_out),
@@ -559,6 +521,58 @@ module Uranus(
         .cp0_write_en_in(memwb_0_cp0_write_en_out),
         .cp0_addr_in(memwb_0_cp0_addr_out),
         .cp0_write_data_in(memwb_0_cp0_write_data_out)
+    );
+
+    EX ex_0(
+        .funct(idex_0_funct_out),
+        .shamt(idex_0_shamt_out),
+        .operand_1(idex_0_operand_1_out),
+        .operand_2(idex_0_operand_2_out),
+        .write_reg_en_in(idex_0_write_reg_en_out),
+        .write_reg_addr_in(idex_0_write_reg_addr_out),
+        .result_out(ex_0_result_out),
+        .write_reg_en_out(ex_0_write_reg_en_out),
+        .write_reg_addr_out(ex_0_write_reg_addr_out),
+        .hilo_write_en(ex_0_hilo_write_en),
+        .hi_out(ex_0_hi_out),
+        .lo_out(ex_0_lo_out),
+        .hi_in(hiloreadproxy_0_hi_out),
+        .lo_in(hiloreadproxy_0_lo_out),
+        .mem_read_flag_in(idex_0_mem_read_flag_out),
+        .mem_write_flag_in(idex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_in(idex_0_mem_sign_ext_flag_out),
+        .mem_sel_in(idex_0_mem_sel_out),
+        .mem_write_data_in(idex_0_mem_write_data_out),
+        .mem_read_flag_out(ex_0_mem_read_flag_out),
+        .mem_write_flag_out(ex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_out(ex_0_mem_sign_ext_flag_out),
+        .mem_sel_out(ex_0_mem_sel_out),
+        .mem_write_data_out(ex_0_mem_write_data_out),
+        .rst(rst_1),
+        .debug_pc_addr_in(idex_0_debug_pc_addr_out),
+        .debug_pc_addr_out(ex_0_debug_pc_addr_out),
+        .stall_request(ex_0_stall_request),
+        .ex_load_flag(ex_0_ex_load_flag),
+        .cp0_write_en(ex_0_cp0_write_en),
+        .cp0_addr_out(ex_0_cp0_addr_out),
+        .cp0_write_data_out(ex_0_cp0_write_data_out),
+        .cp0_write_flag_in(idex_0_cp0_write_flag_out),
+        .cp0_read_flag_in(idex_0_cp0_read_flag_out),
+        .cp0_addr_in(idex_0_cp0_addr_out),
+        .cp0_write_data_in(idex_0_cp0_write_data_out),
+        .cp0_read_data_in(cp0readproxy_0_cp0_read_data_out),
+        .mult_div_done_flag(multdiv_0_done),
+        .mult_div_result(multdiv_0_result)
+    );
+
+    MultDiv multdiv_0(
+        .funct(idex_0_funct_out),
+        .operand_1(idex_0_operand_1_out),
+        .operand_2(idex_0_operand_2_out),
+        .clk(clk_1),
+        .rst(rst_1),
+        .done(multdiv_0_done),
+        .result(multdiv_0_result)
     );
 
 endmodule // Uranus

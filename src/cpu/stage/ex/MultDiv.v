@@ -14,7 +14,7 @@ module MultDiv(
     output reg[`DOUBLE_DATA_BUS] result
 );
 
-    parameter kDivCycle = 33, kMultCycle = 2;
+    parameter kDivCycle = 32, kMultCycle = 1;
 
     reg[kDivCycle - 1:0] cycle_counter;
     reg[`DOUBLE_DATA_BUS] mult_result;

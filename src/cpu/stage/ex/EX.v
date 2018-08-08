@@ -27,6 +27,9 @@ module EX(
     input [`CP0_ADDR_BUS] cp0_addr_in,
     input [`DATA_BUS] cp0_write_data_in,
     input [`DATA_BUS] cp0_read_data_in,
+    // multiplication & division
+    input mult_div_done_flag,
+    input [`DOUBLE_DATA_BUS] mult_div_result,
     // stall request
     output reg stall_request,
     // to ID stage (solve data hazards)
@@ -142,16 +145,6 @@ module EX(
             default: write_reg_en <= write_reg_en_in;
         endcase
     end
-
-    // calculate the result of multiplication & division
-    wire mult_div_done_flag;
-    wire[`DOUBLE_DATA_BUS] mult_div_result;
-    MultDiv mult_div(
-        clk, rst,
-        /* flush */ 0, funct,
-        operand_1, operand_2,
-        mult_div_done_flag, mult_div_result
-    );
 
     // write HI & LO 
     always @(*) begin
