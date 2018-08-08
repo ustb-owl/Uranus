@@ -2,6 +2,7 @@
 `define CP0_MFC0                 5'b00000
 `define CP0_MTC0                 5'b00100
 `define CP0_ERET                 5'b10000
+`define CP0_ERET_FULL            32'h42000018
 
 // coprocessor 0 register address definitions
 `define CP0_REG_BADVADDR         5'b01000
@@ -28,10 +29,11 @@
 `define CP0_REG_CONFIG_VALUE     32'h00008000
 `define CP0_REG_CONFIG_MASK      32'h00000000
 
-// Coprocessor 0 segment definitions
-`define CP0_SEG_HWI              15:10
-`define CP0_SEG_SWI              9:8
-`define CP0_SEG_EXCCODE          6:2
+// coprocessor 0 segment definitions of STATUS & CAUSE
+`define CP0_SEG_EXL              1       // STATUS
+`define CP0_SEG_HWI              15:10   // CAUSE
+`define CP0_SEG_SWI              9:8     // CAUSE
+`define CP0_SEG_EXCCODE          6:2     // CAUSE
 
 // ExcCode definitions
 `define CP0_EXECODE_INT          5'h00

@@ -11,7 +11,7 @@
 `define DATA_BUS_WIDTH          32
 
 // double size data bus
-`define DOUBLE_DATA_BUS         64:0
+`define DOUBLE_DATA_BUS         63:0
 `define DOUBLE_DATA_BUS_WIDTH   64
 
 // half size data bus
