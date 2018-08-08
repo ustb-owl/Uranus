@@ -14,19 +14,28 @@ module MultDiv(
     output reg[`DOUBLE_DATA_BUS] result
 );
 
-    parameter kDivCycle = 32, kMultCycle = 1;
+    parameter kDivCycle = 33, kMultCycle = 1;
 
     reg[kDivCycle - 1:0] cycle_counter;
     reg[`DOUBLE_DATA_BUS] mult_result;
 
-    wire signed_flag, mult_neg_flag;
+    wire signed_flag, result_neg_flag, remainder_neg_flag;
     wire[`DATA_BUS] op_1, op_2;
+    wire[`DATA_BUS] quotient, remainder;
 
     assign done = cycle_counter[0];
     assign signed_flag = funct == `FUNCT_MULT || funct == `FUNCT_DIV;
-    assign mult_neg_flag = signed_flag && (operand_1[31] ^ operand_2[31]);
+    assign result_neg_flag = signed_flag && (operand_1[31] ^ operand_2[31]);
+    assign remainder_neg_flag = signed_flag && (operand_1[31] ^ remainder[31]);
     assign op_1 = (signed_flag && operand_1[31]) ? -operand_1 : operand_1;
     assign op_2 = (signed_flag && operand_2[31]) ? -operand_2 : operand_2;
+
+    // divider
+    div_uu #(.z_width(64)) divider(
+        clk, funct == `FUNCT_DIV || funct == `FUNCT_DIVU,
+        {32'h0, op_1}, op_2,
+        quotient, remainder
+    );
 
     always @(posedge clk) begin
         mult_result <= op_1 * op_2;
@@ -35,9 +44,14 @@ module MultDiv(
     always @(*) begin
         case (funct)
             `FUNCT_MULT, `FUNCT_MULTU: begin
-                result <= mult_neg_flag ? -mult_result : mult_result;
+                result <= result_neg_flag ? -mult_result : mult_result;
             end
-            // `FUNCT_DIV, `FUNCT_DIVU: result <= 
+            `FUNCT_DIV, `FUNCT_DIVU: begin
+                result <= {
+                    remainder_neg_flag ? -remainder : remainder,
+                    result_neg_flag ? -quotient : quotient
+                };
+            end
             default: result <= 0;
         endcase
     end
