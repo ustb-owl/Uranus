@@ -28,7 +28,7 @@ module EX(
     input [`DATA_BUS] cp0_write_data_in,
     input [`DATA_BUS] cp0_read_data_in,
     // stall request
-    output stall_request,
+    output reg stall_request,
     // to ID stage (solve data hazards)
     output ex_load_flag,
     // to MEM stage
@@ -73,8 +73,6 @@ module EX(
     assign cp0_write_data_out = rst ? cp0_write_data_in : 0;
     // debug signal
     assign debug_pc_addr_out = debug_pc_addr_in;
-
-    assign stall_request = 0;
 
     // store HI & LO
     wire[`DATA_BUS] hi = hi_in;
@@ -138,12 +136,22 @@ module EX(
         case (funct)
             // TODO: raise exception when overflow
             `FUNCT_ADD, `FUNCT_SUB: write_reg_en <= !overflow_sum;
-            // instructions that not to write register
+            // instructions that not to write register file
             `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV,
             `FUNCT_DIVU, `FUNCT_JR: write_reg_en <= 0;
             default: write_reg_en <= write_reg_en_in;
         endcase
     end
+
+    // calculate the result of multiplication & division
+    wire mult_div_done_flag;
+    wire[`DOUBLE_DATA_BUS] mult_div_result;
+    MultDiv mult_div(
+        clk, rst,
+        /* flush */ 0, funct,
+        operand_1, operand_2,
+        mult_div_done_flag, mult_div_result
+    );
 
     // write HI & LO 
     always @(*) begin
@@ -160,20 +168,27 @@ module EX(
                 lo_out <= operand_1;
             end
             // multiplication & division
-            // `FUNCT_MULT, `FUNCT_MULTU: begin
-            //     hilo_write_en <= 1;
-            //     hi_out <= mul_result_final[63:32];
-            //     lo_out <= mul_result_final[31:0];
-            // end
-            // `FUNCT_DIV, `FUNCT_DIVU: begin
-            //     hilo_write_en <= 1;
-            //     hi_out <= div_result[63:32];
-            //     lo_out <= div_result[31:0];
-            // end
+            `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV, `FUNCT_DIVU: begin
+                hilo_write_en <= 1;
+                hi_out <= mult_div_result[63:32];
+                lo_out <= mult_div_result[31:0];
+            end
             default: begin
                 hilo_write_en <= 0;
                 hi_out <= hi;
                 lo_out <= lo;
+            end
+        endcase
+    end
+
+    // generate stall request signal
+    always @(*) begin
+        case (funct)
+            `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV, `FUNCT_DIVU: begin
+                stall_request <= !mult_div_done_flag;
+            end
+            default: begin
+                stall_request <= 0;
             end
         endcase
     end
