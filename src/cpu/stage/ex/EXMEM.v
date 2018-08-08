@@ -19,6 +19,9 @@ module EXMEM(
     input hilo_write_en_in,
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
+    input cp0_write_en_in,
+    input [`CP0_ADDR_BUS] cp0_addr_in,
+    input [`DATA_BUS] cp0_write_data_in,
     input [`ADDR_BUS] debug_pc_addr_in,
     // output to MEM stage
     output mem_read_flag_out,
@@ -34,6 +37,10 @@ module EXMEM(
     output hilo_write_en_out,
     output [`DATA_BUS] hi_out,
     output [`DATA_BUS] lo_out,
+    // coprocessor 0 control
+    output cp0_write_en_out,
+    output [`CP0_ADDR_BUS] cp0_addr_out,
+    output [`DATA_BUS] cp0_write_data_out,
     // debug signal
     output [`ADDR_BUS] debug_pc_addr_out
 );
@@ -93,13 +100,33 @@ module EXMEM(
     );
 
     PipelineDeliver #(`DATA_BUS_WIDTH) ff_hi(
+        clk, rst,
         stall_current_stage, stall_next_stage,
-        clk, rst, hi_in, hi_out
+        hi_in, hi_out
     );
 
     PipelineDeliver #(`DATA_BUS_WIDTH) ff_lo(
+        clk, rst,
         stall_current_stage, stall_next_stage,
-        clk, rst, lo_in, lo_out
+        lo_in, lo_out
+    );
+
+    PipelineDeliver #(1) ff_cp0_write_en(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_write_en_in, cp0_write_en_out
+    );
+
+    PipelineDeliver #(`CP0_ADDR_BUS_WIDTH) ff_cp0_addr(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_addr_in, cp0_addr_out
+    );
+
+    PipelineDeliver #(`DATA_BUS_WIDTH) ff_cp0_write_data(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_write_data_in, cp0_write_data_out
     );
 
     PipelineDeliver #(`ADDR_BUS_WIDTH) ff_debug_pc_addr(

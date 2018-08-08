@@ -41,6 +41,12 @@ module ID(
     // to WB stage (write back to regfile)
     output reg write_reg_en,
     output reg[`REG_ADDR_BUS] write_reg_addr,
+    // coprocessor 0
+    output reg cp0_write_flag,
+    output reg cp0_read_flag,
+    output reg[`CP0_ADDR_BUS] cp0_addr,
+    output reg[`DATA_BUS] cp0_write_data,
+    // debug signal
     output [`ADDR_BUS] debug_pc_addr
 );
 
@@ -423,6 +429,62 @@ module ID(
             case (inst_op)
                 `OP_SB, `OP_SH, `OP_SW: mem_write_data <= reg_data_2;
                 default: mem_write_data <= 0;
+            endcase
+        end
+    end
+
+    // generate coprocessor 0 register address
+    always @(*) begin
+        if (!rst) begin
+            cp0_write_flag <= 0;
+            cp0_addr <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_CP0: begin
+                    if (inst_rs == `CP0_MTC0 && !inst[10:0]) begin
+                        cp0_write_flag <= 1;
+                        cp0_read_flag <= 0;
+                        cp0_addr <= inst_rd;
+                    end
+                    else if (inst_rs == `CP0_MFC0 && !inst[10:0]) begin
+                        cp0_write_flag <= 0;
+                        cp0_read_flag <= 1;
+                        cp0_addr <= inst_rd;
+                    end
+                    else begin
+                        cp0_write_flag <= 0;
+                        cp0_read_flag <= 0;
+                        cp0_addr <= 0;
+                    end
+                end
+                default: begin
+                    cp0_write_flag <= 0;
+                    cp0_read_flag <= 0;
+                    cp0_addr <= 0;
+                end
+            endcase
+        end
+    end
+
+    // generate coprocessor register write data
+    always @(*) begin
+        if (!rst) begin
+            cp0_write_data <= 0;
+        end
+        else begin
+            case (inst_op)
+                `OP_CP0: begin
+                    if (inst_rs == `CP0_MTC0 && !inst[10:0]) begin
+                        cp0_write_data <= reg_data_1;
+                    end
+                    else begin
+                        cp0_write_data <= 0;
+                    end
+                end
+                default: begin
+                    cp0_write_data <= 0;
+                end
             endcase
         end
     end

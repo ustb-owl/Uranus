@@ -17,6 +17,9 @@ module MEM(
     input hilo_write_en_in,
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
+    input cp0_write_en_in,
+    input [`CP0_ADDR_BUS] cp0_addr_in,
+    input [`DATA_BUS] cp0_write_data_in,
     input [`ADDR_BUS] debug_pc_addr_in,
     // RAM control signals
     output reg ram_en,
@@ -36,6 +39,9 @@ module MEM(
     output hilo_write_en_out,
     output [`DATA_BUS] hi_out,
     output [`DATA_BUS] lo_out,
+    output cp0_write_en_out,
+    output [`CP0_ADDR_BUS] cp0_addr_out,
+    output [`DATA_BUS] cp0_write_data_out,
     output [`ADDR_BUS] debug_pc_addr_out
 );
 
@@ -55,6 +61,9 @@ module MEM(
     assign hilo_write_en_out = rst ? hilo_write_en_in : 0;
     assign hi_out = rst ? hi_in : 0;
     assign lo_out = rst ? lo_in : 0;
+    assign cp0_write_en_out = rst ? cp0_write_en_in : 0;
+    assign cp0_addr_out = rst ? cp0_addr_in : 0;
+    assign cp0_write_data_out = rst ? cp0_write_data_in : 0;
     // debug signal
     assign debug_pc_addr_out = debug_pc_addr_in;
 

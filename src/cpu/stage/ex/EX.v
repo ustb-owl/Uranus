@@ -21,6 +21,12 @@ module EX(
     // HI & LO data
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
+    // coprocessor 0
+    input cp0_write_flag_in,
+    input cp0_read_flag_in,
+    input [`CP0_ADDR_BUS] cp0_addr_in,
+    input [`DATA_BUS] cp0_write_data_in,
+    input [`DATA_BUS] cp0_read_data_in,
     // stall request
     output stall_request,
     // to ID stage (solve data hazards)
@@ -39,6 +45,10 @@ module EX(
     output reg hilo_write_en,
     output reg[`DATA_BUS] hi_out,
     output reg[`DATA_BUS] lo_out,
+    // coprocessor 0 control
+    output cp0_write_en,
+    output [`CP0_ADDR_BUS] cp0_addr_out,
+    output [`DATA_BUS] cp0_write_data_out,
     // debug signal
     output [`ADDR_BUS] debug_pc_addr_out
 );
@@ -57,6 +67,10 @@ module EX(
     // to WB stage
     assign result_out = rst ? result : 0;
     assign write_reg_addr_out = rst ? write_reg_addr_in : 0;
+    // coprocessor 0
+    assign cp0_write_en = rst ? cp0_write_flag_in : 0;
+    assign cp0_addr_out = rst ? cp0_addr_in : 0;
+    assign cp0_write_data_out = rst ? cp0_write_data_in : 0;
     // debug signal
     assign debug_pc_addr_out = debug_pc_addr_in;
 
@@ -112,7 +126,7 @@ module EX(
             `FUNCT_SRLV: result <= operand_2 >> operand_1[4:0];
             `FUNCT_SRAV: result <= ({32{operand_2[31]}} << (6'd32 - {1'b0, operand_1[4:0]})) | operand_2 >> operand_1[4:0];
             // MULT, MULTU, DIV, DIVU
-            default: result <= 0;
+            default: result <= cp0_read_flag_in ? cp0_read_data_in : 0;
         endcase
     end
 

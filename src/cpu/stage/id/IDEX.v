@@ -19,6 +19,10 @@ module IDEX(
     input [`DATA_BUS] mem_write_data_in,
     input  write_reg_en_in,
     input [`REG_ADDR_BUS] write_reg_addr_in,
+    input cp0_write_flag_in,
+    input cp0_read_flag_in,
+    input [`CP0_ADDR_BUS] cp0_addr_in,
+    input [`DATA_BUS] cp0_write_data_in,
     input [`ADDR_BUS] debug_pc_addr_in,
     // output to EX (and WB) stage
     output [`FUNCT_BUS] funct_out,
@@ -32,6 +36,10 @@ module IDEX(
     output [`DATA_BUS] mem_write_data_out,
     output write_reg_en_out,
     output [`REG_ADDR_BUS] write_reg_addr_out,
+    output cp0_write_flag_out,
+    output cp0_read_flag_out,
+    output [`CP0_ADDR_BUS] cp0_addr_out,
+    output [`DATA_BUS] cp0_write_data_out,
     output [`ADDR_BUS] debug_pc_addr_out
 );
 
@@ -99,6 +107,30 @@ module IDEX(
         clk, rst,
         stall_current_stage, stall_next_stage,
         write_reg_addr_in, write_reg_addr_out
+    );
+
+    PipelineDeliver #(1) ff_cp0_write_flag(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_write_flag_in, cp0_write_flag_out
+    );
+
+    PipelineDeliver #(1) ff_cp0_read_flag(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_read_flag_in, cp0_read_flag_out
+    );
+
+    PipelineDeliver #(`CP0_ADDR_BUS_WIDTH) ff_cp0_addr(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_addr_in, cp0_addr_out
+    );
+
+    PipelineDeliver #(`DATA_BUS_WIDTH) ff_cp0_write_data(
+        clk, rst,
+        stall_current_stage, stall_next_stage,
+        cp0_write_data_in, cp0_write_data_out
     );
 
     PipelineDeliver #(`ADDR_BUS_WIDTH) ff_debug_pc_addr(
