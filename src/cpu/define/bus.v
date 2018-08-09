@@ -34,5 +34,10 @@
 `define SHAMT_BUS               4:0
 `define SHAMT_BUS_WIDTH         5
 
+// stall signal bus
 `define STALL_BUS               5:0
 `define STALL_BUS_WIDTH         6
+
+// exception type bus
+`define EXC_TYPE_BUS            7:0
+`define EXC_TYPE_BUS_WIDTH      8
