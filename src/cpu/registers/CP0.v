@@ -2,6 +2,7 @@
 
 `include "../define/bus.v"
 `include "../define/cp0.v"
+`include "../define/exception.v"
 
 module CP0(
     input clk,
@@ -13,7 +14,15 @@ module CP0(
     input [`DATA_BUS] write_data,
     // hardware interrupt input & output
     input [4:0] interrupt,
+    // exception signals
+    input [`ADDR_BUS] cp0_badvaddr_write_data,
+    input [`EXC_TYPE_BUS] exception_type,
+    input delayslot_flag,
+    input [`ADDR_BUS] current_pc_addr,
     // data output
+    output [`DATA_BUS] status,
+    output [`DATA_BUS] cause,
+    output [`DATA_BUS] epc,
     output reg[`DATA_BUS] data_out
 );
 
@@ -27,6 +36,13 @@ module CP0(
     reg[`DATA_BUS] reg_config;
     reg[`DATA_BUS] reg_prid;
     reg timer_int;
+
+    wire[`DATA_BUS] exc_epc;
+
+    assign status = rst ? reg_status : 0;
+    assign cause = rst ? reg_cause : 0;
+    assign epc = rst ? reg_epc : 0;
+    assign exc_epc = delayslot_flag ? current_pc_addr - 4 : current_pc_addr;
 
     // write data into registers
     always @(posedge clk) begin
@@ -42,11 +58,14 @@ module CP0(
             timer_int <= 0;
         end
         else begin
-            reg_count <= reg_count + 1;
+            // store the status of hardware interrupts
             reg_cause[`CP0_SEG_HWI] <= {timer_int, interrupt};
+            // generate the timer interrupt
+            reg_count <= reg_count + 1;
             if (reg_compare && reg_count == reg_compare) begin
                 timer_int <= 1;
             end
+            // write data to registers from write signals
             if (write_en) begin
                 case (write_addr)
                     `CP0_REG_COUNT: begin
@@ -67,6 +86,57 @@ module CP0(
                     end
                 endcase
             end
+            // write data to registers from exception signals
+            case (exception_type[`EXC_TYPE_POS_INT])
+                `EXC_TYPE_INT: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_INT;
+                end
+                `EXC_TYPE_IF, `EXC_TYPE_ADEL: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_badvaddr <= cp0_badvaddr_write_data;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_ADEL;
+                end
+                `EXC_TYPE_RI: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_RI;
+                end
+                `EXC_TYPE_OV: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_OV;
+                end
+                `EXC_TYPE_BP: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_BP;
+                end
+                `EXC_TYPE_SYS: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_SYS;
+                end
+                `EXC_TYPE_ADES: begin
+                    reg_epc <= exc_epc;
+                    reg_cause[`CP0_SEG_BD] <= delayslot_flag;
+                    reg_badvaddr <= cp0_badvaddr_write_data;
+                    reg_status[`CP0_SEG_EXL] <= 1;
+                    reg_cause[`CP0_SEG_EXCCODE] <= `CP0_EXCCODE_ADES;
+                end
+                `EXC_TYPE_ERET: begin
+                    reg_status[`CP0_SEG_EXL] <= 0;
+                end
+                default:;
+            endcase
         end
     end
 
