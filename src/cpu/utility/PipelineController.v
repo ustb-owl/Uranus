@@ -1,19 +1,30 @@
 `timescale 1ns / 1ps
 
+`include "../define/bus.v"
+`include "../define/exception.v"
+
 module PipelineController(
     input rst,
+    // stall request signals
     input request_from_id,
     input request_from_ex,
+    // exception signals
+    input [`DATA_BUS] cp0_epc,
+    input [`EXC_TYPE_BUS] exception_type,
+    // stall signals for each mid-stage
     output stall_pc,
     output stall_if,
     output stall_id,
     output stall_ex,
     output stall_mem,
-    output stall_wb
+    output stall_wb,
+    // exception handle signals
+    output flush,
+    output reg[`ADDR_BUS] exc_pc
 );
 
     // the stall signal of PC, IF, ID, EX, MEM, WB
-    reg[5:0] stall;
+    reg[`STALL_BUS] stall;
 
     // assign the output of the stall signal
     assign {stall_wb, stall_mem, stall_ex,
@@ -32,6 +43,21 @@ module PipelineController(
         end
         else begin
             stall <= 6'b000000;
+        end
+    end
+
+    // generate the exception handle signals
+    assign flush = rst ? exception_type != `EXC_TYPE_NULL : 0;
+
+    always @(*) begin
+        if (!rst) begin
+            exc_pc <= `INIT_PC;
+        end
+        else if (exception_type != `EXC_TYPE_NULL) begin
+            exc_pc <= `EXC_PC;
+        end
+        else begin
+            exc_pc <= `INIT_PC;
         end
     end
 
