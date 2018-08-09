@@ -49,6 +49,12 @@ class BlockDesignSaxHandler(object):
                     mod_ast.connections.append(con_ast)
                     bus = self.scanner.get_bus(mod_ast.module_name, con_ast.port_name)
                     if self.__cur_ast.bus != bus:
+                        if self.__cur_ast.bus:
+                            print('warning: bus mismatch in wire "%s, %s" '
+                                  'connected to port "%s, %s" of module '
+                                  '"%s"' % \
+                                  (self.__cur_ast.name, str(self.__cur_ast.bus),
+                                  con_ast.port_name, str(bus), mod_ast.module_name))
                         self.__cur_ast.bus = bus
 
 
