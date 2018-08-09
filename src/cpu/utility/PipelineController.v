@@ -53,6 +53,9 @@ module PipelineController(
         if (!rst) begin
             exc_pc <= `INIT_PC;
         end
+        else if (exception_type == `EXC_TYPE_ERET) begin
+            exc_pc <= cp0_epc;
+        end
         else if (exception_type != `EXC_TYPE_NULL) begin
             exc_pc <= `EXC_PC;
         end

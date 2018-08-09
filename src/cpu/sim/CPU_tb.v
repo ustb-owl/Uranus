@@ -24,6 +24,7 @@ module CPU_tb();
     Uranus cpu(
         .clk(clk),
         .rst(rst),
+        .interrupt(5'h00),
         .ram_en(ram_en),
         .ram_write_en(ram_write_en),
         .ram_addr(ram_addr),

@@ -198,7 +198,7 @@ module MEM(
     assign cp0_epc_out = rst ? cp0_epc_in : 0;
     assign delayslot_flag_out = rst ? delayslot_flag_in : 0;
     assign current_pc_addr_out = rst ? current_pc_addr_in : 0;
-    assign int_occured = cp0_cause_in[`CP0_SEG_INT] & cp0_status_in[`CP0_SEG_IM];
+    assign int_occured = |(cp0_cause_in[`CP0_SEG_INT] & cp0_status_in[`CP0_SEG_IM]);
     assign int_enabled = !cp0_status_in[`CP0_SEG_EXL] && cp0_status_in[`CP0_SEG_IE];
 
     always @(*) begin

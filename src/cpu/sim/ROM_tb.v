@@ -11,7 +11,9 @@ module ROM_tb(
     output reg[`INST_BUS] inst
 );
 
-    reg[7:0] rom[0:511];
+    parameter kROMSize = 4096;
+
+    reg[7:0] rom[kROMSize - 1:0];
 
     initial begin
         $readmemh("rom/inst.bin", rom);
