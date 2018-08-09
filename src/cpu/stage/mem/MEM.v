@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
 
 `include "../../define/bus.v"
+`include "../../define/cp0.v"
+`include "../../define/exception.v"
 
 module MEM(
     input rst,
@@ -20,7 +22,13 @@ module MEM(
     input cp0_write_en_in,
     input [`CP0_ADDR_BUS] cp0_addr_in,
     input [`DATA_BUS] cp0_write_data_in,
-    input [`ADDR_BUS] debug_pc_addr_in,
+    // exception signals
+    input [`DATA_BUS] cp0_status_in,
+    input [`DATA_BUS] cp0_cause_in,
+    input [`DATA_BUS] cp0_epc_in,
+    input [`EXC_TYPE_BUS] exception_type_in,
+    input delayslot_flag_in,
+    input [`ADDR_BUS] current_pc_addr_in,
     // RAM control signals
     output reg ram_en,
     output reg[3:0] ram_write_en,
@@ -42,7 +50,11 @@ module MEM(
     output cp0_write_en_out,
     output [`CP0_ADDR_BUS] cp0_addr_out,
     output [`DATA_BUS] cp0_write_data_out,
-    output [`ADDR_BUS] debug_pc_addr_out
+    output reg[`ADDR_BUS] cp0_badvaddr_write_data,
+    output [`DATA_BUS] cp0_epc_out,
+    output reg[`EXC_TYPE_BUS] exception_type_out,
+    output delayslot_flag_out,
+    output [`ADDR_BUS] current_pc_addr_out
 );
 
     // internal ram_write_sel control signal
@@ -64,8 +76,6 @@ module MEM(
     assign cp0_write_en_out = rst ? cp0_write_en_in : 0;
     assign cp0_addr_out = rst ? cp0_addr_in : 0;
     assign cp0_write_data_out = rst ? cp0_write_data_in : 0;
-    // debug signal
-    assign debug_pc_addr_out = debug_pc_addr_in;
 
     wire[`ADDR_BUS] address = result_in;
 
@@ -75,7 +85,7 @@ module MEM(
             ram_en <= 0;
         end
         else if (mem_write_flag_in || mem_read_flag_in) begin
-            ram_en <= 1;
+            ram_en <= exception_type_out == `EXC_TYPE_NULL;
         end
         else begin
             ram_en <= 0;
@@ -178,6 +188,75 @@ module MEM(
         end
         else begin
             ram_write_data <= 0;
+        end
+    end
+
+    // generate exception signals
+    reg adel_flag, ades_flag;
+    wire int_occured, int_enabled;
+
+    assign cp0_epc_out = rst ? cp0_epc_in : 0;
+    assign delayslot_flag_out = rst ? delayslot_flag_in : 0;
+    assign current_pc_addr_out = rst ? current_pc_addr_in : 0;
+    assign int_occured = cp0_cause_in[`CP0_SEG_INT] & cp0_status_in[`CP0_SEG_IM];
+    assign int_enabled = !cp0_status_in[`CP0_SEG_EXL] && cp0_status_in[`CP0_SEG_IE];
+
+    always @(*) begin
+        if (!rst) begin
+            {adel_flag, ades_flag} <= 2'b0;
+            cp0_badvaddr_write_data <= 0;
+        end
+        else if (current_pc_addr_in[1:0]) begin   // inst addr
+            {adel_flag, ades_flag} <= 2'b10;
+            cp0_badvaddr_write_data <= current_pc_addr_in;
+        end
+        else if (mem_sel_in == 4'b0011 && address[0]) begin   // half word
+            {adel_flag, ades_flag} <= {mem_read_flag_in, mem_write_flag_in};
+            cp0_badvaddr_write_data <= address;
+        end
+        else if (mem_sel_in == 4'b1111 && address[1:0]) begin   // word
+            {adel_flag, ades_flag} <= {mem_read_flag_in, mem_write_flag_in};
+            cp0_badvaddr_write_data <= address;
+        end
+        else begin
+            {adel_flag, ades_flag} <= 2'b0;
+            cp0_badvaddr_write_data <= 0;
+        end
+    end
+
+    always @(*) begin
+        if (!rst) begin
+            exception_type_out <= `EXC_TYPE_NULL;
+        end
+        else if (int_occured && int_enabled) begin
+            exception_type_out <= `EXC_TYPE_INT;
+        end
+        else if (current_pc_addr_in[1:0]) begin
+            exception_type_out <= `EXC_TYPE_IF;
+        end
+        else if (exception_type_in[`EXC_TYPE_POS_RI]) begin
+            exception_type_out <= `EXC_TYPE_RI;
+        end
+        else if (exception_type_in[`EXC_TYPE_POS_OV]) begin
+            exception_type_out <= `EXC_TYPE_OV;
+        end
+        else if (exception_type_in[`EXC_TYPE_POS_BP]) begin
+            exception_type_out <= `EXC_TYPE_BP;
+        end
+        else if (exception_type_in[`EXC_TYPE_POS_SYS]) begin
+            exception_type_out <= `EXC_TYPE_SYS;
+        end
+        else if (adel_flag) begin
+            exception_type_out <= `EXC_TYPE_ADEL;
+        end
+        else if (ades_flag) begin
+            exception_type_out <= `EXC_TYPE_ADES;
+        end
+        else if (exception_type_in[`EXC_TYPE_POS_ERET]) begin
+            exception_type_out <= `EXC_TYPE_ERET;
+        end
+        else begin
+            exception_type_out <= `EXC_TYPE_NULL;
         end
     end
 

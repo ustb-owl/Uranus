@@ -1,10 +1,14 @@
 `timescale 1ns / 1ps
 
 `include "../../define/bus.v"
+`include "../../define/exception.v"
 
 module PC(
     input clk,
     input rst,
+    // exception signal
+    input flush,
+    input [`ADDR_BUS] exc_pc,
     // stall signal
     input stall_pc,
     // branch control
@@ -27,7 +31,10 @@ module PC(
 
     // generate value of next PC
     always @(*) begin
-        if (!stall_pc) begin
+        if (flush) begin
+            next_pc <= exc_pc;
+        end
+        else if (!stall_pc) begin
             if (branch_flag) begin
                 next_pc <= branch_addr;
             end
@@ -47,7 +54,7 @@ module PC(
 
     always @(posedge clk) begin
         if (!rom_en) begin
-            pc <= `ADDR_BUS_WIDTH'hbfbffffc;
+            pc <= `INIT_PC - 4;
         end
         else if (!stall_pc) begin
             pc <= next_pc;

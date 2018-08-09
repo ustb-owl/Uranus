@@ -5,6 +5,7 @@
 module IFID(
     input clk,
     input rst,
+    input flush,
     input stall_current_stage,
     input stall_next_stage,
     input [`ADDR_BUS] addr_in,
@@ -14,13 +15,13 @@ module IFID(
 );
 
     PipelineDeliver #(`ADDR_BUS_WIDTH) ff_addr(
-        clk, rst,
+        clk, rst, flush,
         stall_current_stage, stall_next_stage,
         addr_in, addr_out
     );
 
     PipelineDeliver #(`INST_BUS_WIDTH) ff_inst(
-        clk, rst,
+        clk, rst, flush,
         stall_current_stage, stall_next_stage,
         inst_in, inst_out
     );

@@ -6,6 +6,7 @@
 `include "../../define/regimm.v"
 `include "../../define/funct.v"
 `include "../../define/cp0.v"
+`include "../../define/exception.v"
 
 module ID(
     input rst,
@@ -15,6 +16,8 @@ module ID(
     // load related signals
     input load_related_1,
     input load_related_2,
+    // delayslot signal
+    input delayslot_flag_in,
     // from/to regfile
     input [`DATA_BUS] reg_data_1,
     input [`DATA_BUS] reg_data_2,
@@ -28,6 +31,7 @@ module ID(
     output reg branch_flag,
     output reg[`ADDR_BUS] branch_addr,
     // to EX stage
+    output delayslot_flag_out,
     output [`FUNCT_BUS] funct,
     output [`SHAMT_BUS] shamt,
     output reg[`DATA_BUS] operand_1,
@@ -46,12 +50,10 @@ module ID(
     output reg cp0_read_flag,
     output reg[`CP0_ADDR_BUS] cp0_addr,
     output reg[`DATA_BUS] cp0_write_data,
-    // debug signal
-    output [`ADDR_BUS] debug_pc_addr
+    // exception signals
+    output [`EXC_TYPE_BUS] exception_type,
+    output [`ADDR_BUS] current_pc_addr
 );
-
-    // debug signal
-    assign debug_pc_addr = addr;
 
     // extract information from instruction
     wire[`INST_OP_BUS] inst_op = inst[`SEG_OPCODE];
@@ -271,6 +273,8 @@ module ID(
     wire[25:0] jump_addr = inst[25:0];
     wire[`DATA_BUS] sign_extended_imm_sll2 = {{14{inst[15]}}, inst[15:0], 2'b00};
 
+    assign delayslot_flag_out = rst ? delayslot_flag_in : 0;
+
     always @(*) begin
         if (!rst) begin
             branch_flag <= 0;
@@ -486,6 +490,144 @@ module ID(
                     cp0_write_data <= 0;
                 end
             endcase
+        end
+    end
+
+    // generate exception signals
+    reg invalid_inst_flag, overflow_inst_flag;
+    reg syscall_flag, break_flag, eret_flag;
+    assign exception_type = rst ? {
+        eret_flag, /* ADE */ 1'b0,
+        syscall_flag, break_flag, /* TP */ 1'b0,
+        overflow_inst_flag, invalid_inst_flag, /* IF */ 1'b0
+    } : 0;
+    assign current_pc_addr = rst ? addr : 0;
+
+    always @(*) begin
+        if (!rst) begin
+            invalid_inst_flag <= 0;
+            overflow_inst_flag <= 0;
+            syscall_flag <= 0;
+            break_flag <= 0;
+            eret_flag <= 0;
+        end
+        else begin
+            if (inst == `CP0_ERET_FULL) begin
+                invalid_inst_flag <= 0;
+                overflow_inst_flag <= 0;
+                syscall_flag <= 0;
+                break_flag <= 0;
+                eret_flag <= 1;
+            end
+            else begin
+                case (inst_op)
+                    `OP_SPECIAL: begin
+                        case (funct)
+                            `FUNCT_SLL, `FUNCT_SRL, `FUNCT_SRA, `FUNCT_SLLV,
+                            `FUNCT_SRLV, `FUNCT_SRAV, `FUNCT_JR, `FUNCT_JALR,
+                            `FUNCT_MFHI, `FUNCT_MTHI, `FUNCT_MFLO, `FUNCT_MTLO,
+                            `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV, `FUNCT_DIVU,
+                            `FUNCT_ADDU, `FUNCT_SUBU, `FUNCT_AND, `FUNCT_OR,
+                            `FUNCT_XOR, `FUNCT_NOR, `FUNCT_SLT, `FUNCT_SLTU: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                            `FUNCT_ADD, `FUNCT_SUB: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 1;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                            `FUNCT_SYSCALL: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 1;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                            `FUNCT_BREAK: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 1;
+                                eret_flag <= 0;
+                            end
+                            default: begin
+                                invalid_inst_flag <= 1;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                        endcase
+                    end
+                    `OP_REGIMM: begin
+                        case (inst_rt)
+                            `REGIMM_BLTZ, `REGIMM_BLTZAL, `REGIMM_BGEZ,
+                            `REGIMM_BGEZAL: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                            default: begin
+                                invalid_inst_flag <= 1;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                        endcase
+                    end
+                    `OP_CP0: begin
+                        case (inst_rs)
+                            `CP0_MFC0, `CP0_MTC0: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                            default: begin
+                                invalid_inst_flag <= 1;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                        endcase
+                    end
+                    `OP_J, `OP_JAL, `OP_BEQ, `OP_BNE, `OP_BLEZ, `OP_BGTZ,
+                    `OP_ADDIU, `OP_SLTI, `OP_SLTIU, `OP_ANDI, `OP_ORI,
+                    `OP_XORI, `OP_LUI, `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
+                    `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
+                        invalid_inst_flag <= 0;
+                        overflow_inst_flag <= 0;
+                        syscall_flag <= 0;
+                        break_flag <= 0;
+                        eret_flag <= 0;
+                    end
+                    `OP_ADDI: begin
+                        invalid_inst_flag <= 0;
+                        overflow_inst_flag <= 1;
+                        syscall_flag <= 0;
+                        break_flag <= 0;
+                        eret_flag <= 0;
+                    end
+                    default: begin
+                        invalid_inst_flag <= 1;
+                        overflow_inst_flag <= 0;
+                        syscall_flag <= 0;
+                        break_flag <= 0;
+                        eret_flag <= 0;
+                    end
+                endcase
+            end
         end
     end
 

@@ -2,6 +2,7 @@
 
 `include "../../define/bus.v"
 `include "../../define/funct.v"
+`include "../../define/exception.v"
 
 module EX(
     input rst,
@@ -17,7 +18,9 @@ module EX(
     input [`DATA_BUS] mem_write_data_in,
     input  write_reg_en_in,
     input [`REG_ADDR_BUS] write_reg_addr_in,
-    input [`ADDR_BUS] debug_pc_addr_in,
+    input [`EXC_TYPE_BUS] exception_type_in,
+    input delayslot_flag_in,
+    input [`ADDR_BUS] current_pc_addr_in,
     // HI & LO data
     input [`DATA_BUS] hi_in,
     input [`DATA_BUS] lo_in,
@@ -52,8 +55,10 @@ module EX(
     output cp0_write_en,
     output [`CP0_ADDR_BUS] cp0_addr_out,
     output [`DATA_BUS] cp0_write_data_out,
-    // debug signal
-    output [`ADDR_BUS] debug_pc_addr_out
+    // exception signals
+    output [`EXC_TYPE_BUS] exception_type_out,
+    output delayslot_flag_out,
+    output [`ADDR_BUS] current_pc_addr_out
 );
 
     // store the result of ALU
@@ -74,8 +79,6 @@ module EX(
     assign cp0_write_en = rst ? cp0_write_flag_in : 0;
     assign cp0_addr_out = rst ? cp0_addr_in : 0;
     assign cp0_write_data_out = rst ? cp0_write_data_in : 0;
-    // debug signal
-    assign debug_pc_addr_out = debug_pc_addr_in;
 
     // store HI & LO
     wire[`DATA_BUS] hi = hi_in;
@@ -137,7 +140,6 @@ module EX(
     // control register write
     always @(*) begin
         case (funct)
-            // TODO: raise exception when overflow
             `FUNCT_ADD, `FUNCT_SUB: write_reg_en <= !overflow_sum;
             // instructions that not to write register file
             `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV,
@@ -185,5 +187,16 @@ module EX(
             end
         endcase
     end
+
+    // generate exception signals
+    wire overflow_exception;
+    assign overflow_exception = rst ?
+            (exception_type_in[`EXC_TYPE_POS_OV] ? overflow_sum : 0) : 0;
+    assign exception_type_out = rst ? {
+        exception_type_in[7:3],
+        overflow_exception, exception_type_in[1:0]
+    } : 0;
+    assign delayslot_flag_out = rst ? delayslot_flag_in : 0;
+    assign current_pc_addr_out = rst ? current_pc_addr_in : 0;
 
 endmodule // EX
