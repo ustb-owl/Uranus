@@ -226,7 +226,7 @@ seg_rep = [
     (['addi', 'addiu', 'slti', 'sltiu', 'andi',
             'ori', 'xori'], [(1, Repr.Reg), (0, Repr.Reg), (2, Repr.Imm)]),
     (['lui'], [(1, Repr.Reg), (2, Repr.Imm)]),
-    (['mfc0', 'mtc0'], [(1, Repr.Reg), (2, Repr.Reg), (4, Repr.Sel)]),
+    (['mfc0', 'mtc0'], [(1, Repr.Reg), (2, Repr.RegInt), (4, Repr.Sel)]),
     (['lb', 'lh', 'lw', 'lbu', 'lhu', 'sb',
             'sh', 'sw'], [(1, Repr.Reg), (2, Repr.MemOff), (0, Repr.Base)])
 ]

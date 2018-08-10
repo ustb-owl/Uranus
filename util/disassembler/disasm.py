@@ -45,7 +45,7 @@ def get_str(data, rep: Repr, addr):
     elif rep == Repr.Addr:
         s = hex(((addr + 4) & 0xf0000000) | (data << 2))
     elif rep == Repr.Sel:
-        s = str(data) if rep else ''
+        s = str(data) if data else ''
     elif rep == Repr.Base:
         s = '(%s)' % ('$' + mipsdef.reg_table[data])
     elif rep == Repr.MemOff:
