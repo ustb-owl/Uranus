@@ -20,7 +20,8 @@ module Uranus(
     output [31:0] debug_pc_addr,
     output [31:0] rom_addr,
     output [31:0] ram_addr,
-    input [4:0] interrupt
+    input [4:0] interrupt,
+    input stall_all
 );
 
     wire[31:0] ifid_0_addr_out;
@@ -194,6 +195,7 @@ module Uranus(
     wire[31:0] id_0_branch_addr;
     wire id_0_branch_flag;
     wire id_0_next_delayslot_flag_out;
+    wire stall_all_1 = stall_all;
 
     assign ram_write_data = mem_0_ram_write_data;
     assign ram_write_en = mem_0_ram_write_sel;
@@ -562,22 +564,6 @@ module Uranus(
         .cp0_epc_out(mem_0_cp0_epc_out)
     );
 
-    PipelineController pipelinecontroller_0(
-        .rst(rst_1),
-        .request_from_id(id_0_stall_request),
-        .request_from_ex(ex_0_stall_request),
-        .stall_pc(pipelinecontroller_0_stall_pc),
-        .stall_if(pipelinecontroller_0_stall_if),
-        .stall_id(pipelinecontroller_0_stall_id),
-        .stall_ex(pipelinecontroller_0_stall_ex),
-        .stall_mem(pipelinecontroller_0_stall_mem),
-        .stall_wb(pipelinecontroller_0_stall_wb),
-        .flush(pipelinecontroller_0_flush),
-        .exc_pc(pipelinecontroller_0_exc_pc),
-        .exception_type(mem_0_exception_type_out),
-        .cp0_epc(mem_0_cp0_epc_out)
-    );
-
     PC pc_0(
         .clk(clk_1),
         .rst(rst_1),
@@ -646,6 +632,23 @@ module Uranus(
         .branch_addr(id_0_branch_addr),
         .branch_flag(id_0_branch_flag),
         .next_delayslot_flag_out(id_0_next_delayslot_flag_out)
+    );
+
+    PipelineController pipelinecontroller_0(
+        .rst(rst_1),
+        .request_from_id(id_0_stall_request),
+        .request_from_ex(ex_0_stall_request),
+        .stall_pc(pipelinecontroller_0_stall_pc),
+        .stall_if(pipelinecontroller_0_stall_if),
+        .stall_id(pipelinecontroller_0_stall_id),
+        .stall_ex(pipelinecontroller_0_stall_ex),
+        .stall_mem(pipelinecontroller_0_stall_mem),
+        .stall_wb(pipelinecontroller_0_stall_wb),
+        .flush(pipelinecontroller_0_flush),
+        .exc_pc(pipelinecontroller_0_exc_pc),
+        .exception_type(mem_0_exception_type_out),
+        .cp0_epc(mem_0_cp0_epc_out),
+        .stall_all(stall_all_1)
     );
 
 endmodule // Uranus

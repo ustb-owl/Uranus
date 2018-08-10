@@ -8,6 +8,7 @@ module PipelineController(
     // stall request signals
     input request_from_id,
     input request_from_ex,
+    input stall_all,
     // exception signals
     input [`DATA_BUS] cp0_epc,
     input [`EXC_TYPE_BUS] exception_type,
@@ -34,6 +35,9 @@ module PipelineController(
     always @(*) begin
         if (!rst) begin
             stall <= 6'b000000;
+        end
+        else if (stall_all) begin
+            stall <= 6'b111111;
         end
         else if (request_from_id) begin
             stall <= 6'b000111;
