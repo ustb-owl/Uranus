@@ -76,13 +76,14 @@ module CP0(
                         timer_int <= 0;
                     end
                     `CP0_REG_STATUS: begin
-                        reg_status <= write_data & `CP0_REG_STATUS_MASK;
+                        reg_status[15:8] <= write_data[15:8];
+                        reg_status[1:0] <= write_data[1:0];
                     end
                     `CP0_REG_EPC: begin
                         reg_epc <= write_data;
                     end
                     `CP0_REG_CAUSE: begin
-                        reg_cause <= write_data & `CP0_REG_CAUSE_MASK;
+                        reg_cause[9:8] <= write_data[9:8];
                     end
                 endcase
             end

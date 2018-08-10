@@ -31,6 +31,7 @@ module ID(
     output reg branch_flag,
     output reg[`ADDR_BUS] branch_addr,
     // to EX stage
+    output reg next_delayslot_flag_out,
     output delayslot_flag_out,
     output [`FUNCT_BUS] funct,
     output [`SHAMT_BUS] shamt,
@@ -279,21 +280,25 @@ module ID(
         if (!rst) begin
             branch_flag <= 0;
             branch_addr <= 0;
+            next_delayslot_flag_out <= 0;
         end
         else begin
             case (inst_op)
                 `OP_J, `OP_JAL: begin
                     branch_flag <= 1;
                     branch_addr <= {addr_plus_4[31:28], jump_addr, 2'b00};
+                    next_delayslot_flag_out <= 1;
                 end
                 `OP_SPECIAL: begin
                     if (inst_funct == `FUNCT_JR || inst_funct == `FUNCT_JALR) begin
                         branch_flag <= 1;
                         branch_addr <= reg_data_1;
+                        next_delayslot_flag_out <= 1;
                     end
                     else begin
                         branch_flag <= 0;
                         branch_addr <= 0;
+                        next_delayslot_flag_out <= 0;
                     end
                 end
                 `OP_BEQ: begin
@@ -305,6 +310,7 @@ module ID(
                         branch_flag <= 0;
                         branch_addr <= 0;
                     end
+                    next_delayslot_flag_out <= 1;
                 end
                 `OP_BGTZ: begin
                     if (!reg_data_1[31] && reg_data_1) begin
@@ -315,6 +321,7 @@ module ID(
                         branch_flag <= 0;
                         branch_addr <= 0;
                     end
+                    next_delayslot_flag_out <= 1;
                 end
                 `OP_BLEZ: begin
                     if (reg_data_1[31] || !reg_data_1) begin
@@ -324,7 +331,8 @@ module ID(
                     else begin
                         branch_flag <= 0;
                         branch_addr <= 0;
-                    end            
+                    end
+                    next_delayslot_flag_out <= 1;
                 end
                 `OP_BNE: begin
                     if (reg_data_1 != reg_data_2) begin
@@ -335,6 +343,7 @@ module ID(
                         branch_flag <= 0;
                         branch_addr <= 0;
                     end
+                    next_delayslot_flag_out <= 1;
                 end
                 `OP_REGIMM: begin
                     case (inst_rt)
@@ -347,6 +356,7 @@ module ID(
                                 branch_flag <= 0;
                                 branch_addr <= 0;
                             end
+                            next_delayslot_flag_out <= 1;
                         end
                         `REGIMM_BGEZ, `REGIMM_BGEZAL: begin
                             if (!reg_data_1[31]) begin
@@ -357,16 +367,19 @@ module ID(
                                 branch_flag <= 0;
                                 branch_addr <= 0;
                             end
+                            next_delayslot_flag_out <= 1;
                         end
                         default: begin
                             branch_flag <= 0;
                             branch_addr <= 0;
+                            next_delayslot_flag_out <= 0;
                         end
                     endcase
                 end
                 default: begin
                     branch_flag <= 0;
                     branch_addr <= 0;
+                    next_delayslot_flag_out <= 0;
                 end
             endcase
         end
