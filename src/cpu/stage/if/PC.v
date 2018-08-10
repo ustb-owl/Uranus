@@ -56,7 +56,7 @@ module PC(
         if (!rom_en) begin
             pc <= `INIT_PC - 4;
         end
-        else if (!stall_pc) begin
+        else if (flush || !stall_pc) begin
             pc <= next_pc;
         end
     end
