@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module Top(
-    input         clk,
-    input         resetn,
+    input         aclk,
+    input         aresetn,
 
     input  [5:0]  int,
 
@@ -47,24 +47,33 @@ module Top(
     input         bvalid,
     output        bready,
 
-    output [3:0]  debug_wb_pc,
-    output [31:0] debug_wb_rf_wen,
+    output [31:0]  debug_wb_pc,
+    output [3:0] debug_wb_rf_wen,
     output [4:0]  debug_wb_rf_wnum,
     output [31:0] debug_wb_rf_wdata
 );
 
-    wire[3:0]  awid_i;
-    wire[31:0] awaddr_i;
-    wire[3:0]  awlen_i;
-    wire[2:0]  awsize_i;
-    wire[1:0]  awburst_i;
-    wire[31:0] wdata_i;
-    wire[3:0]  wstrb_i;
-    wire[3:0]  arid_i;
-    wire[31:0] araddr_i;
-    wire[3:0]  arlen_i;
-    wire[2:0]  arsize_i;
-    wire[1:0]  arburst_i;
+    wire       ram_en_conn;
+    wire[3:0]  ram_write_en_conn;
+    wire[31:0] ram_write_data_conn;
+    wire[31:0] ram_addr_conn;
+    wire       rom_en_conn;
+    wire[3:0]  rom_write_en_conn;
+    wire[31:0] rom_write_data_conn;
+    wire[31:0] rom_addr_conn;
+
+    wire[3:0]  awid_conn;
+    wire[31:0] awaddr_conn;
+    wire[3:0]  awlen_conn;
+    wire[2:0]  awsize_conn;
+    wire[1:0]  awburst_conn;
+    wire[31:0] wdata_conn;
+    wire[3:0]  wstrb_conn;
+    wire[3:0]  arid_conn;
+    wire[31:0] araddr_conn;
+    wire[3:0]  arlen_conn;
+    wire[2:0]  arsize_conn;
+    wire[1:0]  arburst_conn;
 
     assign arlock = 0;
     assign arcache = 0;
@@ -73,21 +82,9 @@ module Top(
     assign awcache = 0;
     assign awprot = 0;
 
-    assign awid_i = 4'b1010;
-    assign awlen_i = 4'b0000;
-    assign awsize_i = 3'b010;
-    assign awburst_i = 2'b00;
-
-    assign arid_i = 4'b0101;
-    // TODO: !
-    assign araddr_i = ? /* MUX(rom_addr, ram_addr) */;
-    assign arlen_i = 4'b0000;
-    assign arsize_i = 3'b010;
-    assign arburst_i = 2'b00;
-
     AXI_master axi_master(
-        .clk(clk),
-        .rst_n(resetn),
+        .clk(aclk),
+        .rst_n(aresetn),
 
         .AWID(awid),
         .AWADDR(awaddr),
@@ -124,38 +121,63 @@ module Top(
         .RVALID(rvalid),
         .RREADY(rready),
 
-        .awid_i(awid_i),
-        .awaddr_i(awaddr_i),
-        .awlen_i(awlen_i),
-        .awsize_i(awsize_i),
-        .awburst_i(awburst_i),
-        .wdata_i(wdata_i),
-        .wstrb_i(wstrb_i),
-        .arid_i(arid_i),
-        .araddr_i(araddr_i),
-        .arlen_i(arlen_i),
-        .arsize_i(arsize_i),
-        .arburst_i(arburst_i),
+        .awid_i(awid_conn),
+        .awaddr_i(awaddr_conn),
+        .awlen_i(awlen_conn),
+        .awsize_i(awsize_conn),
+        .awburst_i(awburst_conn),
+        .wdata_i(wdata_conn),
+        .wstrb_i(wstrb_conn),
+        .arid_i(arid_conn),
+        .araddr_i(araddr_conn),
+        .arlen_i(arlen_conn),
+        .arsize_i(arsize_conn),
+        .arburst_i(arburst_conn)
+    );
+
+    arbiter arbiter_0(
+        .ram_en(ram_en_conn),
+        .ram_write_en(ram_write_en_conn),
+        .ram_write_data(ram_write_data_conn),
+        .ram_addr(ram_addr_conn),
+
+        .rom_en(rom_en_conn),
+        .rom_write_en(rom_write_en_conn),
+        .rom_write_data(rom_write_data_conn),
+        .rom_addr(rom_addr_conn),
+
+        .awid_o(awid_conn),
+        .awaddr_o(awaddr_conn),
+        .awlen_o(awlen_conn),
+        .awsize_o(awsize_conn),
+        .awburst_o(awburst_conn),
+        .wdata_o(wdata_conn),
+        .wstrb_o(wstrb_conn),
+        .arid_o(arid_conn),
+        .araddr_o(araddr_conn),
+        .arlen_o(arlen_conn),
+        .arsize_o(arsize_conn),
+        .arburst_o(arburst_conn)
     );
 
     Uranus cpu(
-        .clk(clk),
-        .rst(resetn),
+        .clk(aclk),
+        .rst(aresetn),
 
-        .stall_all(rvalid),
+        .stall_all(~rvalid),
         .interrupt(int[4:0]),
 
-        .ram_en( ),                     // TODO: !
-        .ram_write_en(wstrb_i),
-        .ram_addr(awaddr_i),
-        .ram_write_data(wdata_i),
-        .ram_read_data( ),              // TODO: !
+        .ram_en(ram_en_conn),
+        .ram_write_en(ram_write_en_conn),
+        .ram_addr(ram_addr_conn),
+        .ram_write_data(ram_write_data_conn),
+        .ram_read_data(rdata),
 
-        .rom_en( ),                     // TODO: !
-        // .rom_write_en( ),
-        .rom_addr( ),                   // TODO: !
-        // .rom_write_data( ),
-        .rom_read_data( ),              // TODO: !
+        .rom_en(rom_en_conn),
+        .rom_write_en(rom_write_en_conn),
+        .rom_addr(rom_addr_conn),
+        .rom_write_data(rom_write_data_conn),
+        .rom_read_data(rdata),
 
         .debug_pc_addr(debug_wb_pc),
         .debug_reg_write_en(debug_wb_rf_wen),
