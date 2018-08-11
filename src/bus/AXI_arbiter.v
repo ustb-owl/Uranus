@@ -57,26 +57,17 @@ module arbiter(
 
     // TODO: replace these MAGIC codes
     reg rvalid_delay;
-    reg[13:0] delay_cycle;
     wire stall_signal = ~(rvalid & rvalid_delay);
 
     always @(posedge clk) begin
         if (!rst) begin
             rvalid_delay <= 0;
-            // delay_cycle <= 0;
         end
         else begin
             rvalid_delay <= rvalid;
-            // if (!stall_signal && ram_read_flag) begin
-            //     delay_cycle <= 1 << 13;
-            // end
-            // if (delay_cycle) begin
-            //     delay_cycle <= delay_cycle >> 1;
-            // end
         end
     end
 
-    // assign stall_all = (delay_cycle ? ~delay_cycle[0] : 1'b0) | stall_signal;
     assign stall_all = stall_signal;
 
 endmodule
