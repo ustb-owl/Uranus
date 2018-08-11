@@ -3,6 +3,7 @@ module arbiter(
     input           rst,
 
     input   [31:0]  rdata,
+    input           rlast,
     input           rvalid,
 
     input           ram_en,
@@ -68,6 +69,22 @@ module arbiter(
         end
     end
 
-    assign stall_all = stall_signal;
+    reg rlast_wait_flag;
+
+    always @(posedge clk) begin
+        if (!rst) begin
+            rlast_wait_flag <= 0;
+        end
+        else begin
+            if (ram_read_flag && rlast) begin
+                rlast_wait_flag <= 1;
+            end
+            if (rlast_wait_flag && !rlast) begin
+                rlast_wait_flag <= 0;
+            end
+        end
+    end
+
+    assign stall_all = stall_signal | (!ram_read_flag & rlast_wait_flag);
 
 endmodule
