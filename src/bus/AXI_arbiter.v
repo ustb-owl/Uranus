@@ -4,8 +4,10 @@ module arbiter(
 
     input   [31:0]  rdata,
     input           rlast,
-    input           wlast,
     input           rvalid,
+
+    input           wlast,
+    input           wready,
 
     input           ram_en,
     input   [3:0]   ram_write_en,
@@ -17,6 +19,7 @@ module arbiter(
     input   [31:0]  rom_write_data,
     input   [31:0]  rom_addr,
 
+    output          wready_out,
     output          stall_all,
 
     output  [31:0]  ram_read_data,
@@ -85,6 +88,17 @@ module arbiter(
         end
     end
 
+    reg[1:0] wready_delay;
+    always @(posedge clk) begin
+        if (!rst) begin
+            wready_delay <= 0;
+        end
+        else begin
+            wready_delay[0] <= wready;
+            wready_delay[1] <= wready_delay[0];
+        end
+    end
+
     // reg wlast_wait_flag;
     // always @(posedge clk) begin
     //     if (!rst) begin
@@ -103,6 +117,8 @@ module arbiter(
     wire rlast_stall = !ram_read_flag & rlast_wait_flag;
     // wire wlast_stall = !ram_write_flag & wlast_wait_flag;
     // assign stall_all = stall_signal | rlast_stall | wlast_stall;
+
+    assign wready_out = wready | wready_delay[0] | wready_delay[1];
     assign stall_all = stall_signal | rlast_stall;
 
 endmodule
