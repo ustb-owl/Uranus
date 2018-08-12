@@ -53,6 +53,7 @@ module Top(
     output [31:0] debug_wb_rf_wdata
 );
 
+    wire       wready_conn;
     wire       stall_all_conn;
 
     wire       ram_en_conn;
@@ -82,6 +83,9 @@ module Top(
     wire[2:0]  arsize_conn;
     wire[1:0]  arburst_conn;
 
+    wire[9:0]  cache_addr_conn;
+    wire[31:0] cache_data_conn;
+
     assign arlock = 0;
     assign arcache = 0;
     assign arprot = 0;
@@ -90,7 +94,7 @@ module Top(
     assign awprot = 0;
     assign debug_wb_rf_wen = stall_all_conn ? 0 : debug_reg_write_en_conn;
 
-    AXI_master axi_master(
+    AXIMaster axi_master(
         .clk(aclk),
         .rst_n(aresetn),
 
@@ -107,7 +111,7 @@ module Top(
         .WSTRB(wstrb),
         .WLAST(wlast),
         .WVALID(wvalid),
-        .WREADY(wready),
+        .WREADY(wready_conn),
 
         .BID(bid),
         .BRESP(bresp),
@@ -140,17 +144,22 @@ module Top(
         .araddr_i(araddr_conn),
         .arlen_i(arlen_conn),
         .arsize_i(arsize_conn),
-        .arburst_i(arburst_conn)
+        .arburst_i(arburst_conn),
+
+        .cache_addr(cache_addr_conn),
+        .cache_data(cache_data_conn)
     );
 
-    arbiter arbiter_0(
+    Arbiter arbiter(
         .clk(aclk),
         .rst(aresetn),
 
         .rdata(rdata),
         .rlast(rlast),
-        .wlast(wlast),
         .rvalid(rvalid),
+
+        .wlast(wlast),
+        .wready(wready),
 
         .ram_en(ram_en_conn),
         .ram_write_en(ram_write_en_conn),
@@ -162,6 +171,7 @@ module Top(
         .rom_write_data(rom_write_data_conn),
         .rom_addr(rom_addr_conn),
 
+        .wready_out(wready_conn),
         .stall_all(stall_all_conn),
 
         .ram_read_data(ram_read_data_conn),
@@ -178,7 +188,10 @@ module Top(
         .araddr_o(araddr_conn),
         .arlen_o(arlen_conn),
         .arsize_o(arsize_conn),
-        .arburst_o(arburst_conn)
+        .arburst_o(arburst_conn),
+
+        .cache_data(cache_data_conn),
+        .cache_addr(cache_addr_conn)
     );
 
     Uranus cpu(
