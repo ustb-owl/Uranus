@@ -1,8 +1,4 @@
 module AXI_master
-#(
-    parameter   DOWN_ADDR = 12'h000,
-    parameter   UP_ADDR   = 12'hfff
-)
 (   
     //GLOBAL SIGNALS (2)
     input           clk,
@@ -159,7 +155,7 @@ module AXI_master
             end
 
             AW_START_M: begin
-                if(awaddr_i >= 32'h0)  begin
+                if(awaddr_i > 32'h0)  begin
                     AWID    = awid_i;
                     AWADDR  = awaddr_i;
                     AWLEN   = awlen_i;
@@ -226,7 +222,7 @@ module AXI_master
             end
 
             W_TRANSFER_M:   begin
-                if(awaddr_i[11:0] >= DOWN_ADDR && awaddr_i[11:0] <= UP_ADDR && awsize_i <= 3'b010) begin
+                if(awsize_i <= 3'b010) begin
                     WID    = AWID;
                     WVALID = 1;
                     WSTRB  = wstrb_i;

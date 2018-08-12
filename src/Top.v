@@ -149,6 +149,7 @@ module Top(
 
         .rdata(rdata),
         .rlast(rlast),
+        .wlast(wlast),
         .rvalid(rvalid),
 
         .ram_en(ram_en_conn),
