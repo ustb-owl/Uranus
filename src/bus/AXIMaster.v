@@ -68,7 +68,7 @@ module AXIMaster
     input   [1:0]   arburst_i,
 
     // burst cache IO
-    input [9:0] cache_addr,
+    input [5:0] cache_addr,
     output [31:0] cache_data
 );
 
@@ -76,7 +76,8 @@ module AXIMaster
     //between slaves and to limit the size of the address incrementer required within slaves.
 
     //creating the master's local ram of 4096 Bytes(4 KB).
-    reg         [7:0]  master_mem   [4095:0];
+    // now change it to 64B.
+    reg         [7:0]  master_mem   [63:0];
 
     //VARIABLES FOR WRITE ADDRESS CHANNEL MASTER
     parameter   [1:0]   AW_IDLE_M  = 2'b00;
@@ -419,19 +420,19 @@ module AXIMaster
 
                         case(arsize_i)
                             3'b000: begin
-                                master_mem[address_slave[11:0]]     <= RDATA[7:0];
+                                master_mem[address_slave[5:0]]     <= RDATA[7:0];
                             end
 
                             3'b001: begin
-                                master_mem[address_slave[11:0]]     <= RDATA[7:0];
-                                master_mem[address_slave[11:0] + 1] <= RDATA[15:8];
+                                master_mem[address_slave[5:0]]     <= RDATA[7:0];
+                                master_mem[address_slave[5:0] + 1] <= RDATA[15:8];
                             end
 
                             3'b010: begin
-                                master_mem[address_slave[11:0]]     <= RDATA[7:0];
-                                master_mem[address_slave[11:0] + 1] <= RDATA[15:8];
-                                master_mem[address_slave[11:0] + 2] <= RDATA[23:16];
-                                master_mem[address_slave[11:0] + 3] <= RDATA[31:24];
+                                master_mem[address_slave[5:0]]     <= RDATA[7:0];
+                                master_mem[address_slave[5:0] + 1] <= RDATA[15:8];
+                                master_mem[address_slave[5:0] + 2] <= RDATA[23:16];
+                                master_mem[address_slave[5:0] + 3] <= RDATA[31:24];
                             end
                         endcase
                     end
@@ -449,7 +450,7 @@ module AXIMaster
                             first_time_next <= 1'b0;
                         end
                         else    begin
-                            first_time_next <= first_time;
+                            // first_time_next <= first_time;
                         end
 
                         case(arsize_i)
@@ -486,7 +487,7 @@ module AXIMaster
                             first_time_next <= 1'b0;
                         end
                         else    begin
-                            first_time_next <= first_time;
+                            // first_time_next <= first_time;
                         end
 
                         case(arlen_i)
@@ -549,7 +550,7 @@ module AXIMaster
 
                         case(arsize_i)
                             3'b000: begin
-                                master_mem[address_slave[11:0]] <= RDATA[7:0];
+                                master_mem[address_slave[5:0]] <= RDATA[7:0];
                                 address_slave_temp <= address_slave + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin
@@ -561,7 +562,7 @@ module AXIMaster
                             end
 
                             3'b001: begin
-                                master_mem[address_slave[11:0]] <= RDATA[7:0];
+                                master_mem[address_slave[5:0]] <= RDATA[7:0];
                                 address_slave_temp <= address_slave + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin
@@ -571,7 +572,7 @@ module AXIMaster
                                     address_slave_reg <= address_slave_temp - wrap_boundary;
                                 end
 
-                                master_mem[address_slave[11:0]] <= RDATA[15:8];
+                                master_mem[address_slave[5:0]] <= RDATA[15:8];
                                 address_slave_temp <= address_slave_reg + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin
@@ -583,7 +584,7 @@ module AXIMaster
                             end
 
                             3'b010: begin
-                                master_mem[address_slave[11:0]] <= RDATA[7:0];
+                                master_mem[address_slave[5:0]] <= RDATA[7:0];
                                 address_slave_temp <= address_slave + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin
@@ -593,7 +594,7 @@ module AXIMaster
                                     address_slave_reg <= address_slave_temp - wrap_boundary;
                                 end
 
-                                master_mem[address_slave[11:0]] <= RDATA[15:8];
+                                master_mem[address_slave[5:0]] <= RDATA[15:8];
                                 address_slave_temp <= address_slave_reg + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin
@@ -603,7 +604,7 @@ module AXIMaster
                                     address_slave_reg <= address_slave_temp;
                                 end
 
-                                master_mem[address_slave[11:0]] <= RDATA[23:16];
+                                master_mem[address_slave[5:0]] <= RDATA[23:16];
                                 address_slave_temp <= address_slave + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin
@@ -613,7 +614,7 @@ module AXIMaster
                                     address_slave_reg <= address_slave_temp - wrap_boundary;
                                 end
 
-                                master_mem[address_slave[11:0]] <= RDATA[31:24];
+                                master_mem[address_slave[5:0]] <= RDATA[31:24];
                                 address_slave_temp <= address_slave_reg + 1;
 
                                 if(address_slave_temp % wrap_boundary == 0) begin

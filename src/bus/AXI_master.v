@@ -445,7 +445,7 @@ module AXI_master
                             first_time_next = 1'b0;
                         end
                         else    begin
-                            first_time_next = first_time;
+                            // first_time_next = first_time;
                         end
 
                         case(arsize_i)
@@ -482,7 +482,7 @@ module AXI_master
                             first_time_next = 1'b0;
                         end
                         else    begin
-                            first_time_next = first_time;
+                            // first_time_next = first_time;
                         end
 
                         case(arlen_i)
