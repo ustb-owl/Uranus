@@ -157,8 +157,9 @@ module Top(
         .rdata(rdata),
         .rlast(rlast),
         .rvalid(rvalid),
-
-        .wlast(wlast),
+        .rready(rready),
+        .bvalid(bvalid),
+        .bready(bready),
         .wready(wready),
 
         .ram_en(ram_en_conn),
