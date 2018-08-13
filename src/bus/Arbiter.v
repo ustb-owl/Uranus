@@ -41,15 +41,15 @@ module Arbiter(
     output [1:0] arburst_o,
     // burst cache IO
     input [31:0] cache_data,
-    output [9:0] cache_addr
+    output [5:0] cache_addr
 );
 
-    parameter kBurstCacheSize = 1 << 2;
+    parameter kBurstCacheSize = 16 << 2;
 
     reg[31:0] rom_burst_start_addr;
     // NOTE: overflow?
     wire[31:0] offset_addr = rom_addr - rom_burst_start_addr;
-    assign cache_addr = offset_addr[9:0];
+    assign cache_addr = offset_addr[5:0];
 
     wire ram_write_flag = ram_en && ram_write_en;
     wire ram_read_flag = ram_en && !ram_write_en;
@@ -69,7 +69,7 @@ module Arbiter(
     assign araddr_o = ram_read_flag ? ram_addr : rom_burst_start_addr;
     assign arlen_o = ram_read_flag ? 4'b0000 : 4'b1111;
     assign arsize_o = 3'b010;
-    assign arburst_o = 2'b00;
+    assign arburst_o = ram_read_flag ? 2'b00 : 2'b01;
 
     // generate delayed wready signal
     reg[1:0] wready_delay;

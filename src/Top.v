@@ -83,7 +83,7 @@ module Top(
     wire[2:0]  arsize_conn;
     wire[1:0]  arburst_conn;
 
-    wire[9:0]  cache_addr_conn;
+    wire[5:0]  cache_addr_conn;
     wire[31:0] cache_data_conn;
 
     assign arlock = 0;
