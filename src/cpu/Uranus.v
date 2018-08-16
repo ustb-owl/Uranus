@@ -21,7 +21,8 @@ module Uranus(
     output [31:0] rom_addr,
     output [31:0] ram_addr,
     input [4:0] interrupt,
-    input stall_all
+    input halt,
+    output debug_exception_flag
 );
 
     wire[31:0] ifid_0_addr_out;
@@ -195,7 +196,7 @@ module Uranus(
     wire[31:0] id_0_branch_addr;
     wire id_0_branch_flag;
     wire id_0_next_delayslot_flag_out;
-    wire stall_all_1 = stall_all;
+    wire stall_all_1 = halt;
 
     assign ram_write_data = mem_0_ram_write_data;
     assign ram_write_en = mem_0_ram_write_sel;
@@ -209,6 +210,7 @@ module Uranus(
     assign debug_pc_addr = wb_0_debug_pc_addr_out;
     assign rom_addr = pc_0_rom_addr;
     assign ram_addr = mmu_0_ram_addr_out;
+    assign debug_exception_flag = pipelinecontroller_0_flush;
 
     IFID ifid_0(
         .addr_out(ifid_0_addr_out),
@@ -324,44 +326,6 @@ module Uranus(
         .current_pc_addr_out(exmem_0_current_pc_addr_out)
     );
 
-    MEMWB memwb_0(
-        .result_in(mem_0_result_out),
-        .write_reg_en_in(mem_0_write_reg_en_out),
-        .write_reg_addr_in(mem_0_write_reg_addr_out),
-        .hilo_write_en_in(mem_0_hilo_write_en_out),
-        .hi_in(mem_0_hi_out),
-        .lo_in(mem_0_lo_out),
-        .ram_read_data_in(ram_read_data_1),
-        .clk(clk_1),
-        .rst(rst_1),
-        .stall_current_stage(pipelinecontroller_0_stall_mem),
-        .stall_next_stage(pipelinecontroller_0_stall_wb),
-        .mem_write_flag_in(mem_0_mem_write_flag_out),
-        .mem_sign_ext_flag_in(mem_0_mem_sign_ext_flag_out),
-        .mem_sel_in(mem_0_mem_sel_out),
-        .mem_read_flag_out(memwb_0_mem_read_flag_out),
-        .ram_read_data_out(memwb_0_ram_read_data_out),
-        .mem_write_flag_out(memwb_0_mem_write_flag_out),
-        .mem_sign_ext_flag_out(memwb_0_mem_sign_ext_flag_out),
-        .mem_sel_out(memwb_0_mem_sel_out),
-        .result_out(memwb_0_result_out),
-        .write_reg_en_out(memwb_0_write_reg_en_out),
-        .write_reg_addr_out(memwb_0_write_reg_addr_out),
-        .hilo_write_en_out(memwb_0_hilo_write_en_out),
-        .hi_out(memwb_0_hi_out),
-        .lo_out(memwb_0_lo_out),
-        .current_pc_addr_out(memwb_0_debug_pc_addr_out),
-        .mem_read_flag_in(mem_0_mem_read_flag_out),
-        .cp0_write_en_out(memwb_0_cp0_write_en_out),
-        .cp0_addr_out(memwb_0_cp0_addr_out),
-        .cp0_write_data_out(memwb_0_cp0_write_data_out),
-        .cp0_write_en_in(mem_0_cp0_write_en_out),
-        .cp0_addr_in(mem_0_cp0_addr_out),
-        .cp0_write_data_in(mem_0_cp0_write_data_out),
-        .flush(pipelinecontroller_0_flush),
-        .current_pc_addr_in(mem_0_current_pc_addr_out)
-    );
-
     RegReadProxy regreadproxy_0(
         .read_addr_2(id_0_reg_addr_2),
         .read_addr_1(id_0_reg_addr_1),
@@ -404,36 +368,6 @@ module Uranus(
         .wb_hilo_write_en(wb_0_hilo_write_en_out),
         .wb_hi_in(wb_0_hi_out),
         .wb_lo_in(wb_0_lo_out)
-    );
-
-    WB wb_0(
-        .rst(rst_1),
-        .debug_reg_write_en(memwb_0_debug_reg_write_en),
-        .mem_read_flag(memwb_0_mem_read_flag_out),
-        .ram_read_data(memwb_0_ram_read_data_out),
-        .mem_write_flag(memwb_0_mem_write_flag_out),
-        .mem_sign_ext_flag(memwb_0_mem_sign_ext_flag_out),
-        .mem_sel(memwb_0_mem_sel_out),
-        .result_in(memwb_0_result_out),
-        .result_out(wb_0_result_out),
-        .write_reg_en_in(memwb_0_write_reg_en_out),
-        .write_reg_en_out(wb_0_write_reg_en_out),
-        .write_reg_addr_in(memwb_0_write_reg_addr_out),
-        .write_reg_addr_out(wb_0_write_reg_addr_out),
-        .hilo_write_en_in(memwb_0_hilo_write_en_out),
-        .hilo_write_en_out(wb_0_hilo_write_en_out),
-        .hi_in(memwb_0_hi_out),
-        .hi_out(wb_0_hi_out),
-        .lo_in(memwb_0_lo_out),
-        .lo_out(wb_0_lo_out),
-        .debug_pc_addr_in(memwb_0_debug_pc_addr_out),
-        .debug_pc_addr_out(wb_0_debug_pc_addr_out),
-        .cp0_write_en_out(wb_0_cp0_write_en),
-        .cp0_addr_out(wb_0_cp0_addr_out),
-        .cp0_write_data_out(wb_0_cp0_write_data_out),
-        .cp0_write_en_in(memwb_0_cp0_write_en_out),
-        .cp0_addr_in(memwb_0_cp0_addr_out),
-        .cp0_write_data_in(memwb_0_cp0_write_data_out)
     );
 
     MMU mmu_0(
@@ -634,6 +568,44 @@ module Uranus(
         .next_delayslot_flag_out(id_0_next_delayslot_flag_out)
     );
 
+    MEMWB memwb_0(
+        .result_in(mem_0_result_out),
+        .write_reg_en_in(mem_0_write_reg_en_out),
+        .write_reg_addr_in(mem_0_write_reg_addr_out),
+        .hilo_write_en_in(mem_0_hilo_write_en_out),
+        .hi_in(mem_0_hi_out),
+        .lo_in(mem_0_lo_out),
+        .ram_read_data_in(ram_read_data_1),
+        .clk(clk_1),
+        .rst(rst_1),
+        .stall_current_stage(pipelinecontroller_0_stall_mem),
+        .stall_next_stage(pipelinecontroller_0_stall_wb),
+        .mem_write_flag_in(mem_0_mem_write_flag_out),
+        .mem_sign_ext_flag_in(mem_0_mem_sign_ext_flag_out),
+        .mem_sel_in(mem_0_mem_sel_out),
+        .mem_read_flag_out(memwb_0_mem_read_flag_out),
+        .ram_read_data_out(memwb_0_ram_read_data_out),
+        .mem_write_flag_out(memwb_0_mem_write_flag_out),
+        .mem_sign_ext_flag_out(memwb_0_mem_sign_ext_flag_out),
+        .mem_sel_out(memwb_0_mem_sel_out),
+        .result_out(memwb_0_result_out),
+        .write_reg_en_out(memwb_0_write_reg_en_out),
+        .write_reg_addr_out(memwb_0_write_reg_addr_out),
+        .hilo_write_en_out(memwb_0_hilo_write_en_out),
+        .hi_out(memwb_0_hi_out),
+        .lo_out(memwb_0_lo_out),
+        .current_pc_addr_out(memwb_0_debug_pc_addr_out),
+        .mem_read_flag_in(mem_0_mem_read_flag_out),
+        .cp0_write_en_out(memwb_0_cp0_write_en_out),
+        .cp0_addr_out(memwb_0_cp0_addr_out),
+        .cp0_write_data_out(memwb_0_cp0_write_data_out),
+        .cp0_write_en_in(mem_0_cp0_write_en_out),
+        .cp0_addr_in(mem_0_cp0_addr_out),
+        .cp0_write_data_in(mem_0_cp0_write_data_out),
+        .flush(pipelinecontroller_0_flush),
+        .current_pc_addr_in(mem_0_current_pc_addr_out)
+    );
+
     PipelineController pipelinecontroller_0(
         .rst(rst_1),
         .request_from_id(id_0_stall_request),
@@ -649,6 +621,36 @@ module Uranus(
         .exception_type(mem_0_exception_type_out),
         .cp0_epc(mem_0_cp0_epc_out),
         .stall_all(stall_all_1)
+    );
+
+    WB wb_0(
+        .rst(rst_1),
+        .debug_reg_write_en(memwb_0_debug_reg_write_en),
+        .mem_read_flag(memwb_0_mem_read_flag_out),
+        .ram_read_data(memwb_0_ram_read_data_out),
+        .mem_write_flag(memwb_0_mem_write_flag_out),
+        .mem_sign_ext_flag(memwb_0_mem_sign_ext_flag_out),
+        .mem_sel(memwb_0_mem_sel_out),
+        .result_in(memwb_0_result_out),
+        .result_out(wb_0_result_out),
+        .write_reg_en_in(memwb_0_write_reg_en_out),
+        .write_reg_en_out(wb_0_write_reg_en_out),
+        .write_reg_addr_in(memwb_0_write_reg_addr_out),
+        .write_reg_addr_out(wb_0_write_reg_addr_out),
+        .hilo_write_en_in(memwb_0_hilo_write_en_out),
+        .hilo_write_en_out(wb_0_hilo_write_en_out),
+        .hi_in(memwb_0_hi_out),
+        .hi_out(wb_0_hi_out),
+        .lo_in(memwb_0_lo_out),
+        .lo_out(wb_0_lo_out),
+        .debug_pc_addr_in(memwb_0_debug_pc_addr_out),
+        .debug_pc_addr_out(wb_0_debug_pc_addr_out),
+        .cp0_write_en_out(wb_0_cp0_write_en),
+        .cp0_addr_out(wb_0_cp0_addr_out),
+        .cp0_write_data_out(wb_0_cp0_write_data_out),
+        .cp0_write_en_in(memwb_0_cp0_write_en_out),
+        .cp0_addr_in(memwb_0_cp0_addr_out),
+        .cp0_write_data_in(memwb_0_cp0_write_data_out)
     );
 
 endmodule // Uranus
