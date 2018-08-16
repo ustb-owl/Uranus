@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "../../debug.v"
+
 module Top(
     input         aclk,
     input         aresetn,
@@ -8,7 +10,7 @@ module Top(
 
     output [3:0]  arid,
     output [31:0] araddr,
-    output [3:0]  arlen,
+    output [7:0]  arlen,
     output [2:0]  arsize,
     output [1:0]  arburst,
     output [1:0]  arlock,
@@ -26,7 +28,7 @@ module Top(
 
     output [3:0]  awid,
     output [31:0] awaddr,
-    output [3:0]  awlen,
+    output [7:0]  awlen,
     output [2:0]  awsize,
     output [1:0]  awburst,
     output [1:0]  awlock,
@@ -47,14 +49,14 @@ module Top(
     input         bvalid,
     output        bready,
 
-    output [31:0] debug_wb_pc,
-    output [3:0]  debug_wb_rf_wen,
-    output [4:0]  debug_wb_rf_wnum,
-    output [31:0] debug_wb_rf_wdata
+    `DEBUG output [31:0] debug_wb_pc,
+    `DEBUG output [3:0]  debug_wb_rf_wen,
+    `DEBUG output [4:0]  debug_wb_rf_wnum,
+    `DEBUG output [31:0] debug_wb_rf_wdata
 );
 
     wire       exception_flag_conn;
-    wire       halt_conn;
+    `DEBUG wire halt_conn;
 
     wire       ram_en_conn;
     wire[3:0]  ram_write_en_conn;

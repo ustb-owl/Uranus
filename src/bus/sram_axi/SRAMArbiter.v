@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "../../debug.v"
+
 module SRAMArbiter(
     input clk,
     input rst,
@@ -17,18 +19,18 @@ module SRAMArbiter(
     output [31:0] ram_read_data,
     // inst sram-like
     input [31:0] inst_rdata,
-    input inst_addr_ok,
-    input inst_data_ok,
-    output inst_req,
+    `DEBUG input inst_addr_ok,
+    `DEBUG input inst_data_ok,
+    `DEBUG output inst_req,
     output inst_wr,
     output [1:0] inst_size,
     output [31:0] inst_addr,
     output [31:0] inst_wdata,
     // data sram-like 
     input [31:0] data_rdata,
-    input data_addr_ok,
-    input data_data_ok,
-    output data_req,
+    `DEBUG input data_addr_ok,
+    `DEBUG input data_data_ok,
+    `DEBUG output data_req,
     output data_wr,
     output [1:0] data_size,
     output [31:0] data_addr,
@@ -40,7 +42,8 @@ module SRAMArbiter(
 
     // state machine
     parameter kStateRun = 0, kStateWait = 1, kStateRAM = 2, kStateROM = 3;
-    reg[1:0] state, next_state;
+    `DEBUG reg[1:0] state;
+    reg[1:0] next_state;
 
     // address & data of RAM & ROM
     reg[31:0] last_ram_addr, last_rom_addr;
@@ -170,7 +173,7 @@ module SRAMArbiter(
     end
 
     // send address request
-    reg ram_access_flag;
+    reg ram_access_flag, rom_access_flag;
     always @(posedge clk) begin
         if (!rst) begin
             ram_req <= 0;
@@ -178,6 +181,7 @@ module SRAMArbiter(
             last_ram_addr <= 0;
             last_rom_addr <= 0;
             ram_access_flag <= 0;
+            rom_access_flag <= 0;
         end
         else if (state == kStateRAM) begin
             if (!ram_access_flag) begin
@@ -192,10 +196,11 @@ module SRAMArbiter(
             end
         end
         else if (state == kStateROM) begin
-            if (rom_addr != last_rom_addr) begin
+            if (!rom_access_flag) begin
                 if (inst_addr_ok && rom_req) begin
                     rom_req <= 0;
                     last_rom_addr <= rom_addr;
+                    rom_access_flag <= 1;
                 end
                 else begin
                     rom_req <= 1;
@@ -205,6 +210,7 @@ module SRAMArbiter(
         else begin
             // restore ram_access_flag
             ram_access_flag <= 0;
+            rom_access_flag <= 0;
         end
     end
 
