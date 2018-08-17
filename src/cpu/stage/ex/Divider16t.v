@@ -9,7 +9,7 @@ module Divider16t(
     output [31:0] quotient,
     output [31:0] remainder,
     output reg div0,
-    output reg done
+    output done
 );
 
     parameter kDivFree = 2'b00, kDivByZero = 2'b01,
@@ -23,24 +23,29 @@ module Divider16t(
     wire[64:0] mind;         // divisor * 0.5
     wire[64:0] maxd;         // divisor * 1.5
 
+    reg[31:0] last_divident, last_divisor;
+    wire start_flag = {last_divident, last_divisor} != {divident, divisor};
+
     assign mind = reg_d >> 1;
     assign maxd = reg_d + mind;
     assign quotient = reg_result[31:0];
     assign remainder = reg_result[64:33];
+    assign done = state == kDivFree;
 
     always @(posedge clk) begin
         if (!rst) begin
             state <= kDivFree;
-            done <= 0;
             div0 <= 0;
             reg_result <= 0;
+            last_divident <= 0;
+            last_divisor <= 0;
         end
         else begin
             case (state)
                 kDivFree: begin
-                    done <= 0;
-                    div0 <= 0;
-                    if (en) begin
+                    if (en && start_flag) begin
+                        last_divident <= divident;
+                        last_divisor <= divisor;
                         if (!divisor) begin
                             state <= kDivByZero;
                         end
@@ -80,7 +85,7 @@ module Divider16t(
                     end
                 end
                 kDivEnd: begin
-                    done <= 1;
+                    div0 <= 0;
                     state <= kDivFree;
                 end
                 default:;
