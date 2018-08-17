@@ -1,7 +1,7 @@
 from io import BytesIO
 
 
-class _Converter(object):
+class Converter(object):
     def __init__(self):
         self._stream = BytesIO()
         # self._seg = seg
@@ -12,8 +12,8 @@ class _Converter(object):
     def write(self, b):
         self._stream.write(b)
 
-    def convert(self, output_path):
-        with open(output_path, 'w') as f:
+    def convert(self, path):
+        with open(path, 'w') as f:
             self.do_convert(f)
 
     # extract from convert for unittest
@@ -22,7 +22,7 @@ class _Converter(object):
 
 
 # to *.coe file
-class CoeConverter(_Converter):
+class CoeConverter(Converter):
     def do_convert(self, f):
         f.write('memory_initialization_radix=16;\n')
         f.write('memory_initialization_vector=\n')
@@ -41,7 +41,7 @@ class CoeConverter(_Converter):
 
 
 # to file that can be read by '$readmemh'
-class HexConverter(_Converter):
+class HexConverter(Converter):
     def do_convert(self, f):
         f.write('@00000000\n')
         self._stream.seek(0)
@@ -56,6 +56,6 @@ class HexConverter(_Converter):
 
 
 # to binary file
-class BinaryConverter(_Converter):
+class BinaryConverter(Converter):
     def do_convert(self, f):
         pass

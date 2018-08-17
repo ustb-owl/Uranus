@@ -283,8 +283,8 @@ class SingleInstBuilder(_InstBuilder):
             self._trim_body(0)
             rt = 0b00000
             imm = 0b0000000000 << 6
-            imm += mipsdef.cp0_table[self.opcode]
-            inst += 0b10000 << 21
+            imm += 0b011000
+            inst += mipsdef.cp0_table[self.opcode] << 21
         inst += rt << 16
         inst += imm
         return self._get_byte(inst)

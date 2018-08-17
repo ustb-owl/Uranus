@@ -1,28 +1,50 @@
 import mipsdef, re
 from mipsinst import *
-from enum import Enum, unique
 from seg_def import Segment
+from converter import Converter, HexConverter
 
-# TODO: implement this class
+
 class SegmentManager(object):
-    def __init__(self):
-        self.cur_seg = Segment.Data
-        self.rom = []
-        self.ram = []
+    def __init__(self, converter: Converter):
+        self.__converter = converter
+        self.__rom = []
+        self.__ram = []
+        self.cur_seg = Segment.Text
+
+    def __get_bytes(self, data):
+        if isinstance(data, int):   # word
+            pass
+        elif isinstance(data, str):   # asciiz
+            return bytes(data.encode('utf-8'))
+        else:
+            raise RuntimeError('illegal data: ' + str(data))
 
     def switch(self, segment: str):
         if segment.lower() == '.text':
             self.cur_seg = Segment.Text
-        elif segment.lower() == '.text':
+        elif segment.lower() == '.data':
             self.cur_seg = Segment.Data
         else:
             raise RuntimeError('unknown segment: ' + segment)
     
-    pass
+    def set_base(self, addr):
+        if self.cur_seg != Segment.Text:
+            raise RuntimeError('illegal usage of ".org"')
+        pass
+
+    def get_pos(self):
+        pass
+
+    def append(self, data):
+        data_bytes = self.__get_bytes(data)
+        if self.cur_seg == Segment.Text:
+            self.__rom.append(data_bytes)
+        else:
+            self.__ram.append(data_bytes)
 
 
 class AsmGenerator(object):
-    def __init__(self):
+    def __init__(self, converter=HexConverter):
         self.__builders = [
             (mipsdef.r_type, RTypeInstBuilder),
             (mipsdef.i_type, ITypeInstBuilder),
@@ -43,6 +65,7 @@ class AsmGenerator(object):
         self.__ram = []
         self.__tags = {}
         self.__undef_tags = {}
+        self.__segman = SegmentManager(converter)
 
     def __append(self, byte, inst, pos=None):
         text = self.__pattern.format(byte=byte, inst=inst)
@@ -60,6 +83,18 @@ class AsmGenerator(object):
         if not opcode or opcode.startswith('#'):
             # blank or comment
             return True
+        elif opcode.startswith('.'):
+            # segment declaration
+            try:
+                self.__segman.switch(opcode[1:])
+            except RuntimeError:
+                l = opcode.split(' ')
+                param = eval(l[1])
+                if l[0].lower() == '.org':
+                    # set the start address of program
+                    self.__segman.set_base(param)
+                else:
+                    self.__segman.append(param)
         elif opcode.endswith(':'):
             # position tag definition
             tag = opcode[:-1]
