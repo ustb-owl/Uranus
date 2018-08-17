@@ -90,8 +90,8 @@ module Top(
     wire       data_addr_ok_conn;
     wire       data_data_ok_conn;
 
-    assign debug_wb_rf_wen = halt_conn || debug_wb_pc == 32'hbfc005f4 ?
-            0 : debug_reg_write_en_conn;
+    assign debug_wb_rf_wen = halt_conn /* || debug_wb_pc == 32'hbfc005f4 */
+            ? 0 : debug_reg_write_en_conn;
 
     cpu_axi_interface axi_interface_0(
         .clk(aclk),
