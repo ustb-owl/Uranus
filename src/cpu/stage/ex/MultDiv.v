@@ -3,8 +3,6 @@
 `include "../../define/bus.v"
 `include "../../define/funct.v"
 
-`include "../../../debug.v"
-
 module MultDiv(
     input clk,
     input rst,
@@ -12,7 +10,7 @@ module MultDiv(
     input [`FUNCT_BUS] funct,
     input [`DATA_BUS] operand_1,
     input [`DATA_BUS] operand_2,
-    `DEBUG output reg done,
+    output reg done,
     output reg[`DOUBLE_DATA_BUS] result
 );
 
