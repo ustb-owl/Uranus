@@ -19,10 +19,10 @@ module MMU(
                 read_addr_out <= read_addr_in;
             end
             else if (`IN_RANGE(read_addr_in, 4'h8, 4'h9)) begin
-                read_addr_out <= {4'h0, read_addr_in[27:0]};
+                read_addr_out <= {read_addr_in[31:28] - 4'h8, read_addr_in[27:0]};
             end
             else if (`IN_RANGE(read_addr_in, 4'ha, 4'hb)) begin
-                read_addr_out <= {4'h0, read_addr_in[27:0]};
+                read_addr_out <= {read_addr_in[31:28] - 4'ha, read_addr_in[27:0]};
             end
             else if (`IN_RANGE(read_addr_in, 4'hc, 4'hd)) begin
                 read_addr_out <= read_addr_in;
@@ -42,10 +42,10 @@ module MMU(
                 write_addr_out <= write_addr_in;
             end
             else if (`IN_RANGE(write_addr_in, 4'h8, 4'h9)) begin
-                write_addr_out <= {4'h0, write_addr_in[27:0]};
+                write_addr_out <= {write_addr_in[31:28] - 4'h8, write_addr_in[27:0]};
             end
             else if (`IN_RANGE(write_addr_in, 4'ha, 4'hb)) begin
-                write_addr_out <= {4'h0, write_addr_in[27:0]};
+                write_addr_out <= {write_addr_in[31:28] - 4'ha, write_addr_in[27:0]};
             end
             else if (`IN_RANGE(write_addr_in, 4'hc, 4'hd)) begin
                 write_addr_out <= write_addr_in;

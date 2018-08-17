@@ -2,7 +2,7 @@
 
 `include "debug.v"
 
-module Top(
+module mycpu_top(
     input         aclk,
     input         aresetn,
 
@@ -93,8 +93,7 @@ module Top(
     wire[31:0] read_addr_conn;
     wire[31:0] write_addr_conn;
 
-    assign debug_wb_rf_wen = halt_conn /* || debug_wb_pc == 32'hbfc005f4 */
-            ? 0 : debug_reg_write_en_conn;
+    assign debug_wb_rf_wen = halt_conn ? 0 : debug_reg_write_en_conn;
 
     MMU mmu(
         .rst(aresetn),
