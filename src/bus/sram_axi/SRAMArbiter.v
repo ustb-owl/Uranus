@@ -46,8 +46,8 @@ module SRAMArbiter(
     reg[1:0] next_state;
 
     // address & data of RAM & ROM
-    reg[31:0] last_ram_addr, last_rom_addr;
-    reg[31:0] last_ram_data, last_rom_data;
+    `DEBUG reg[31:0] last_ram_addr, last_rom_addr;
+    `DEBUG reg[31:0] last_ram_data, last_rom_data;
     reg ram_data_dirty_flag;
 
     // flags

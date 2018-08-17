@@ -3,6 +3,8 @@
 `include "../../define/bus.v"
 `include "../../define/funct.v"
 
+`include "../../../debug.v"
+
 module MultDiv(
     input clk,
     input rst,
@@ -10,20 +12,20 @@ module MultDiv(
     input [`FUNCT_BUS] funct,
     input [`DATA_BUS] operand_1,
     input [`DATA_BUS] operand_2,
-    output done,
+    `DEBUG output reg done,
     output reg[`DOUBLE_DATA_BUS] result
 );
 
-    parameter kDivCycle = 33, kMultCycle = 1;
+    parameter kDivCycle = 32, kMultCycle = 1;
 
     reg[kDivCycle - 1:0] cycle_counter;
+    reg[`FUNCT_BUS] last_funct;
     reg[`DOUBLE_DATA_BUS] mult_result;
 
     wire signed_flag, result_neg_flag, remainder_neg_flag;
     wire[`DATA_BUS] op_1, op_2;
     wire[`DATA_BUS] quotient, remainder;
 
-    assign done = cycle_counter[0];
     assign signed_flag = funct == `FUNCT_MULT || funct == `FUNCT_DIV;
     assign result_neg_flag = signed_flag && (operand_1[31] ^ operand_2[31]);
     assign remainder_neg_flag = signed_flag && (operand_1[31] ^ remainder[31]);
@@ -75,6 +77,27 @@ module MultDiv(
                     cycle_counter <= 0;
                 end
             endcase
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst) begin
+            last_funct <= funct;
+        end
+        else begin
+            last_funct <= funct;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst) begin
+            done <= 0;
+        end
+        else if (last_funct != funct) begin
+            done <= 0;
+        end
+        else if (cycle_counter) begin
+            done <= cycle_counter[0];
         end
     end
 
