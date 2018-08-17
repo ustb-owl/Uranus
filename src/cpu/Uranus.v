@@ -21,8 +21,8 @@ module Uranus(
     output [31:0] rom_addr,
     output [31:0] ram_addr,
     input [4:0] interrupt,
-    input halt,
-    output debug_exception_flag
+    output debug_exception_flag,
+    input halt
 );
 
     wire[31:0] ifid_0_addr_out;
@@ -137,8 +137,6 @@ module Uranus(
     wire mem_0_mem_load_flag;
     wire[31:0] pc_0_rom_addr;
     wire[31:0] pc_0_pc;
-    wire[31:0] mem_0_ram_addr;
-    wire[31:0] mmu_0_ram_addr_out;
     wire id_0_cp0_write_flag;
     wire id_0_cp0_read_flag;
     wire[4:0] id_0_cp0_addr;
@@ -197,6 +195,7 @@ module Uranus(
     wire id_0_branch_flag;
     wire id_0_next_delayslot_flag_out;
     wire stall_all_1 = halt;
+    wire[31:0] mem_0_ram_addr;
 
     assign ram_write_data = mem_0_ram_write_data;
     assign ram_write_en = mem_0_ram_write_sel;
@@ -209,8 +208,8 @@ module Uranus(
     assign debug_reg_write_addr = wb_0_write_reg_addr_out;
     assign debug_pc_addr = wb_0_debug_pc_addr_out;
     assign rom_addr = pc_0_rom_addr;
-    assign ram_addr = mmu_0_ram_addr_out;
     assign debug_exception_flag = pipelinecontroller_0_flush;
+    assign ram_addr = mem_0_ram_addr;
 
     IFID ifid_0(
         .addr_out(ifid_0_addr_out),
@@ -370,12 +369,6 @@ module Uranus(
         .wb_lo_in(wb_0_lo_out)
     );
 
-    MMU mmu_0(
-        .rst(rst_1),
-        .ram_addr_in(mem_0_ram_addr),
-        .ram_addr_out(mmu_0_ram_addr_out)
-    );
-
     CP0ReadProxy cp0readproxy_0(
         .wb_cp0_write_flag(wb_0_cp0_write_en),
         .wb_cp0_write_addr(wb_0_cp0_addr_out),
@@ -478,7 +471,6 @@ module Uranus(
         .mem_sel_out(mem_0_mem_sel_out),
         .mem_read_flag_out(mem_0_mem_read_flag_out),
         .mem_load_flag(mem_0_mem_load_flag),
-        .ram_addr(mem_0_ram_addr),
         .cp0_write_en_out(mem_0_cp0_write_en_out),
         .cp0_addr_out(mem_0_cp0_addr_out),
         .cp0_write_data_out(mem_0_cp0_write_data_out),
@@ -495,7 +487,8 @@ module Uranus(
         .cp0_badvaddr_write_data(mem_0_cp0_badvaddr_write_data),
         .delayslot_flag_out(mem_0_delayslot_flag_out),
         .exception_type_out(mem_0_exception_type_out),
-        .cp0_epc_out(mem_0_cp0_epc_out)
+        .cp0_epc_out(mem_0_cp0_epc_out),
+        .ram_addr(mem_0_ram_addr)
     );
 
     PC pc_0(

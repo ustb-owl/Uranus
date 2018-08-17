@@ -90,10 +90,21 @@ module Top(
     wire       data_addr_ok_conn;
     wire       data_data_ok_conn;
 
+    wire[31:0] read_addr_conn;
+    wire[31:0] write_addr_conn;
+
     assign debug_wb_rf_wen = halt_conn /* || debug_wb_pc == 32'hbfc005f4 */
             ? 0 : debug_reg_write_en_conn;
 
-    cpu_axi_interface axi_interface_0(
+    MMU mmu(
+        .rst(aresetn),
+        .read_addr_in(read_addr_conn),
+        .write_addr_in(write_addr_conn),
+        .read_addr_out(araddr),
+        .write_addr_out(awaddr)
+    );
+
+    cpu_axi_interface axi_interface(
         .clk(aclk),
         .resetn(aresetn),
 
@@ -116,7 +127,7 @@ module Top(
         .data_data_ok(data_data_ok_conn),
 
         .arid(arid),
-        .araddr(araddr),
+        .araddr(read_addr_conn),
         .arlen(arlen),
         .arsize(arsize),
         .arburst(arburst),
@@ -134,7 +145,7 @@ module Top(
         .rready(rready),
 
         .awid(awid),
-        .awaddr(awaddr),
+        .awaddr(write_addr_conn),
         .awlen(awlen),
         .awsize(awsize),
         .awburst(awburst),

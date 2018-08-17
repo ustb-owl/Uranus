@@ -52,6 +52,8 @@ module SRAMArbiter(
 
     // flags
     wire ram_request = ram_en && (ram_addr != last_ram_addr
+            || ram_addr[31:16] == 16'hffff
+            || (ram_addr[31:28] >= 4'ha && ram_addr[31:28] <= 4'hb)
             || (ram_write_en ?
                     ram_write_data != last_ram_data
                     : ram_data_dirty_flag));
