@@ -74,8 +74,11 @@ def get_asm(infile, outfile, base):
                 pattern = '%-30s # %s\n'
                 inst_byte = int(line.replace(' ', ''), 16)
                 if inst_byte:
-                    op, seg_list = get_seg(inst_byte)
-                    inst = get_inst(op, seg_list, addr)
+                    try:
+                        op, seg_list = get_seg(inst_byte)
+                        inst = get_inst(op, seg_list, addr)
+                    except:
+                        inst = 'error'
                 else:
                     inst = 'nop'
                 fw.write(pattern % (inst, hex(addr)))
