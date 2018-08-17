@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "debug.v"
+
 module Top(
     input         aclk,
     input         aresetn,
@@ -8,7 +10,7 @@ module Top(
 
     output [3:0]  arid,
     output [31:0] araddr,
-    output [3:0]  arlen,
+    output [7:0]  arlen,
     output [2:0]  arsize,
     output [1:0]  arburst,
     output [1:0]  arlock,
@@ -26,7 +28,7 @@ module Top(
 
     output [3:0]  awid,
     output [31:0] awaddr,
-    output [3:0]  awlen,
+    output [7:0]  awlen,
     output [2:0]  awsize,
     output [1:0]  awburst,
     output [1:0]  awlock,
@@ -47,14 +49,14 @@ module Top(
     input         bvalid,
     output        bready,
 
-    output [31:0] debug_wb_pc,
-    output [3:0]  debug_wb_rf_wen,
-    output [4:0]  debug_wb_rf_wnum,
-    output [31:0] debug_wb_rf_wdata
+    `DEBUG output [31:0] debug_wb_pc,
+    `DEBUG output [3:0]  debug_wb_rf_wen,
+    `DEBUG output [4:0]  debug_wb_rf_wnum,
+    `DEBUG output [31:0] debug_wb_rf_wdata
 );
 
-    wire       wready_conn;
-    wire       stall_all_conn;
+    wire       exception_flag_conn;
+    `DEBUG wire halt_conn;
 
     wire       ram_en_conn;
     wire[3:0]  ram_write_en_conn;
@@ -70,136 +72,144 @@ module Top(
 
     wire[3:0]  debug_reg_write_en_conn;
 
-    wire[3:0]  awid_conn;
-    wire[31:0] awaddr_conn;
-    wire[3:0]  awlen_conn;
-    wire[2:0]  awsize_conn;
-    wire[1:0]  awburst_conn;
-    wire[31:0] wdata_conn;
-    wire[3:0]  wstrb_conn;
-    wire[3:0]  arid_conn;
-    wire[31:0] araddr_conn;
-    wire[3:0]  arlen_conn;
-    wire[2:0]  arsize_conn;
-    wire[1:0]  arburst_conn;
+    wire       inst_req_conn;
+    wire       inst_wr_conn;
+    wire[1:0]  inst_size_conn;
+    wire[31:0] inst_addr_conn;
+    wire[31:0] inst_wdata_conn;
+    wire[31:0] inst_rdata_conn;
+    wire       inst_addr_ok_conn;
+    wire       inst_data_ok_conn;
 
-    wire[5:0]  cache_addr_conn;
-    wire[31:0] cache_data_conn;
+    wire       data_req_conn;
+    wire       data_wr_conn;
+    wire[1:0]  data_size_conn;
+    wire[31:0] data_addr_conn;
+    wire[31:0] data_wdata_conn;
+    wire[31:0] data_rdata_conn;
+    wire       data_addr_ok_conn;
+    wire       data_data_ok_conn;
 
-    assign arlock = 0;
-    assign arcache = 0;
-    assign arprot = 0;
-    assign awlock = 0;
-    assign awcache = 0;
-    assign awprot = 0;
-    assign debug_wb_rf_wen = stall_all_conn ? 0 : debug_reg_write_en_conn;
+    wire[31:0] read_addr_conn;
+    wire[31:0] write_addr_conn;
 
-    AXIMaster axi_master(
-        .clk(aclk),
-        .rst_n(aresetn),
+    assign debug_wb_rf_wen = halt_conn /* || debug_wb_pc == 32'hbfc005f4 */
+            ? 0 : debug_reg_write_en_conn;
 
-        .AWID(awid),
-        .AWADDR(awaddr),
-        .AWLEN(awlen),
-        .AWSIZE(awsize),
-        .AWBURST(awburst),
-        .AWVALID(awvalid),
-        .AWREADY(awready),
-
-        .WID(wid),
-        .WDATA(wdata),
-        .WSTRB(wstrb),
-        .WLAST(wlast),
-        .WVALID(wvalid),
-        .WREADY(wready_conn),
-
-        .BID(bid),
-        .BRESP(bresp),
-        .BVALID(bvalid),
-        .BREADY(bready),
-
-        .ARID(arid),
-        .ARADDR(araddr),
-        .ARLEN(arlen),
-        .ARSIZE(arsize),
-        .ARBURST(arburst),
-        .ARVALID(arvalid),
-        .ARREADY(arready),
-
-        .RID(rid),
-        .RDATA(rdata),
-        .RRESP(rresp),
-        .RLAST(rlast),
-        .RVALID(rvalid),
-        .RREADY(rready),
-
-        .awid_i(awid_conn),
-        .awaddr_i(awaddr_conn),
-        .awlen_i(awlen_conn),
-        .awsize_i(awsize_conn),
-        .awburst_i(awburst_conn),
-        .wdata_i(wdata_conn),
-        .wstrb_i(wstrb_conn),
-        .arid_i(arid_conn),
-        .araddr_i(araddr_conn),
-        .arlen_i(arlen_conn),
-        .arsize_i(arsize_conn),
-        .arburst_i(arburst_conn),
-
-        .cache_addr(cache_addr_conn),
-        .cache_data(cache_data_conn)
+    MMU mmu(
+        .rst(aresetn),
+        .read_addr_in(read_addr_conn),
+        .write_addr_in(write_addr_conn),
+        .read_addr_out(araddr),
+        .write_addr_out(awaddr)
     );
 
-    Arbiter arbiter(
+    cpu_axi_interface axi_interface(
         .clk(aclk),
-        .rst(aresetn),
+        .resetn(aresetn),
 
+        .inst_req(inst_req_conn),
+        .inst_wr(inst_wr_conn),
+        .inst_size(inst_size_conn),
+        .inst_addr(inst_addr_conn),
+        .inst_wdata(inst_wdata_conn),
+        .inst_rdata(inst_rdata_conn),
+        .inst_addr_ok(inst_addr_ok_conn),
+        .inst_data_ok(inst_data_ok_conn),
+
+        .data_req(data_req_conn),
+        .data_wr(data_wr_conn),
+        .data_size(data_size_conn),
+        .data_addr(data_addr_conn),
+        .data_wdata(data_wdata_conn),
+        .data_rdata(data_rdata_conn),
+        .data_addr_ok(data_addr_ok_conn),
+        .data_data_ok(data_data_ok_conn),
+
+        .arid(arid),
+        .araddr(read_addr_conn),
+        .arlen(arlen),
+        .arsize(arsize),
+        .arburst(arburst),
+        .arlock(arlock),
+        .arcache(arcache),
+        .arprot(arprot),
+        .arvalid(arvalid),
+        .arready(arready),
+
+        .rid(rid),
         .rdata(rdata),
+        .rresp(rresp),
         .rlast(rlast),
         .rvalid(rvalid),
         .rready(rready),
-        .bvalid(bvalid),
-        .bready(bready),
+
+        .awid(awid),
+        .awaddr(write_addr_conn),
+        .awlen(awlen),
+        .awsize(awsize),
+        .awburst(awburst),
+        .awlock(awlock),
+        .awcache(awcache),
+        .awprot(awprot),
+        .awvalid(awvalid),
+        .awready(awready),
+
+        .wid(wid),
+        .wdata(wdata),
+        .wstrb(wstrb),
+        .wlast(wlast),
+        .wvalid(wvalid),
         .wready(wready),
 
-        .ram_en(ram_en_conn),
-        .ram_write_en(ram_write_en_conn),
-        .ram_write_data(ram_write_data_conn),
-        .ram_addr(ram_addr_conn),
+        .bid(bid),
+        .bresp(bresp),
+        .bvalid(bvalid),
+        .bready(bready)
+    );
+
+    SRAMArbiter sram_arbiter(
+        .clk(aclk),
+        .rst(aresetn),
 
         .rom_en(rom_en_conn),
         .rom_write_en(rom_write_en_conn),
         .rom_write_data(rom_write_data_conn),
         .rom_addr(rom_addr_conn),
-
-        .wready_out(wready_conn),
-        .stall_all(stall_all_conn),
-
-        .ram_read_data(ram_read_data_conn),
         .rom_read_data(rom_read_data_conn),
+        .ram_en(ram_en_conn),
+        .ram_write_en(ram_write_en_conn),
+        .ram_write_data(ram_write_data_conn),
+        .ram_addr(ram_addr_conn),
+        .ram_read_data(ram_read_data_conn),
 
-        .awid_o(awid_conn),
-        .awaddr_o(awaddr_conn),
-        .awlen_o(awlen_conn),
-        .awsize_o(awsize_conn),
-        .awburst_o(awburst_conn),
-        .wdata_o(wdata_conn),
-        .wstrb_o(wstrb_conn),
-        .arid_o(arid_conn),
-        .araddr_o(araddr_conn),
-        .arlen_o(arlen_conn),
-        .arsize_o(arsize_conn),
-        .arburst_o(arburst_conn),
+        .inst_rdata(inst_rdata_conn),
+        .inst_addr_ok(inst_addr_ok_conn),
+        .inst_data_ok(inst_data_ok_conn),
+        .inst_req(inst_req_conn),
+        .inst_wr(inst_wr_conn),
+        .inst_size(inst_size_conn),
+        .inst_addr(inst_addr_conn),
+        .inst_wdata(inst_wdata_conn),
 
-        .cache_data(cache_data_conn),
-        .cache_addr(cache_addr_conn)
+        .data_rdata(data_rdata_conn),
+        .data_addr_ok(data_addr_ok_conn),
+        .data_data_ok(data_data_ok_conn),
+        .data_req(data_req_conn),
+        .data_wr(data_wr_conn),
+        .data_size(data_size_conn),
+        .data_addr(data_addr_conn),
+        .data_wdata(data_wdata_conn),
+
+        .exception_flag(exception_flag_conn),
+        .halt(halt_conn)
     );
 
     Uranus cpu(
         .clk(aclk),
         .rst(aresetn),
 
-        .stall_all(stall_all_conn),
+        .halt(halt_conn),
         .interrupt(int[4:0]),
 
         .ram_en(ram_en_conn),
@@ -217,7 +227,8 @@ module Top(
         .debug_pc_addr(debug_wb_pc),
         .debug_reg_write_en(debug_reg_write_en_conn),
         .debug_reg_write_addr(debug_wb_rf_wnum),
-        .debug_reg_write_data(debug_wb_rf_wdata)
+        .debug_reg_write_data(debug_wb_rf_wdata),
+        .debug_exception_flag(exception_flag_conn)
     );
 
 endmodule // Top
