@@ -1,0 +1,10 @@
+digraph divider_fsm {
+    node [shape = circle];
+    Free -> Free [label = " !en"];
+    Free -> Zero [label = "en &&\n divisor == 0"];
+    Free -> DivOn [label = " en && divisor"];
+    Zero -> End;
+    DivOn -> DivOn [label = " i < 15"];
+    DivOn -> End [label = " i == 15"];
+    End -> Free [constraint = false];
+}

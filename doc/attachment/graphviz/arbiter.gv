@@ -1,0 +1,12 @@
+digraph arbiter_fsm {
+    node [shape = circle];
+    RUN -> WAIT;
+    WAIT -> RAM [label = "ram_request"];
+    WAIT -> ROM [label = "rom_request"];
+    WAIT -> RUN [label = "no_request"];
+    RAM -> ROM [label = "data_ok && rom_request"];
+    RAM -> RUN [label = "data_ok && !rom_request"];
+    RAM -> RAM [label = "!data_ok"];
+    ROM -> RUN [label = "data_ok"];
+    ROM -> ROM [label = "!data_ok"];
+}
