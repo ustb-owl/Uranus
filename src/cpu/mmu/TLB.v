@@ -2,7 +2,7 @@
 
 module TLB(
     input clk,
-    input rst,
+    input rst
 );
 
 endmodule // TLB

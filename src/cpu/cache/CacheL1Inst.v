@@ -11,7 +11,7 @@ module CacheL1Inst(
     input [31:0] cache_write_data,
     input cache_read_en,
     input [31:0] cache_read_addr,
-    output [31:0] cache_read_data,
+    output [31:0] cache_read_data
 );
 
     reg[4095:0] cache_mem;
