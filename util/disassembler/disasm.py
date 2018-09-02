@@ -1,5 +1,6 @@
-import mipsdef, sys
+import mipsdef
 from mipsdef import Repr
+import sys, os, struct
 
 def get_seg(inst):
     opcode = (inst >> 26) & 0b111111
@@ -28,7 +29,7 @@ def get_seg(inst):
             op = mipsdef.regimm_table[rt]
         seg_list = [rs, rt, imm]
     else:
-        op = 'unknown'
+        op = 'unknown (%s)' % hex(inst)[2:].zfill(8)
         seg_list = []
     return op, seg_list
 
@@ -66,8 +67,8 @@ def get_inst(op, seg_list, addr):
 
 def get_asm(infile, outfile, base):
     with open(infile, 'r') as fr:
-        addr = base
         with open(outfile, 'w') as fw:
+            addr = base
             for line in fr.readlines():
                 if not line:
                     continue
@@ -78,12 +79,29 @@ def get_asm(infile, outfile, base):
                         op, seg_list = get_seg(inst_byte)
                         inst = get_inst(op, seg_list, addr)
                     except:
-                        inst = 'error'
+                        inst = 'error (%s)' % hex(inst_byte)[2:]
                 else:
                     inst = 'nop'
                 fw.write(pattern % (inst, hex(addr)))
                 addr += 4
 
+def get_asm_bin(infile, outfile, base):
+    with open(infile, 'rb') as fr:
+        with open(outfile, 'w') as fw:
+            size = os.path.getsize(infile)
+            for i in range(0, size, 4):
+                addr = base + i
+                pattern = '%-30s # %s\n'
+                inst_byte = struct.unpack('I', fr.read(4))[0]
+                if inst_byte:
+                    try:
+                        op, seg_list = get_seg(inst_byte)
+                        inst = get_inst(op, seg_list, addr)
+                    except:
+                        inst = 'error (%s)' % hex(inst_byte)[2:].zfill(8)
+                else:
+                    inst = 'nop'
+                fw.write(pattern % (inst, hex(addr)))
 
 def main():
     args = sys.argv
@@ -102,7 +120,10 @@ def main():
     else:
         base = 0xbfc00000
 
-    get_asm(infile, outfile, base)
+    if infile.lower().endswith('.bin'):
+        get_asm_bin(infile, outfile, base)
+    else:
+        get_asm(infile, outfile, base)
 
 
 if __name__ == '__main__':
