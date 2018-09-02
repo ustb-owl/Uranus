@@ -20,11 +20,11 @@ module GPIO(
 );
 
     // address definition
-    wire[15:0] address = addr[15:0];
-    parameter kSwitchAddr = 16'h0000, kKeypadAddr = 16'h0004,
-            kBicolor0Addr = 16'h0008, kBicolor1Addr = 16'h000c,
-            kLEDAddr = 16'h0010, kNumAddr = 16'h0014,
-            kTimerAddr = 16'h0018;
+    wire[11:0] address = addr[11:0];
+    parameter kSwitchAddr = 12'h000, kKeypadAddr = 12'h004,
+            kBicolor0Addr = 12'h008, kBicolor1Addr = 12'h00c,
+            kLEDAddr = 12'h010, kNumAddr = 12'h014,
+            kTimerAddr = 12'h018;
 
     // flags
     wire read_flag = en && !write_en;
