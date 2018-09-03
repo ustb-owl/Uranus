@@ -2,8 +2,8 @@
 
 module ResetGenerator(
     input ddr_ui_clk,
-    input ddr_ui_clk_rst,
-    input ddr_calib_done,
+    input ddr_ui_clk_rst,   // active high
+    input ddr_calib_done,   // high after DDR calibration
     output reg ddr_interconn_rst
 );
 
