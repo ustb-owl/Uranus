@@ -2,7 +2,7 @@
 
 `include "../debug.v"
 
-module Uranus(   // mycpu_top
+module Uranus(
     input         aclk,
     input         aresetn,
 
