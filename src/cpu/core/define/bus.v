@@ -19,8 +19,8 @@
 `define HALF_DATA_BUS_WIDTH     16
 
 // coprocessor address bus
-`define CP0_ADDR_BUS            4:0
-`define CP0_ADDR_BUS_WIDTH      5
+`define CP0_ADDR_BUS            7:0
+`define CP0_ADDR_BUS_WIDTH      8
 
 // register bus
 `define REG_ADDR_BUS            4:0

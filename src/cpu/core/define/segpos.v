@@ -5,6 +5,8 @@
 
 // coprocessor
 `define SEG_CP0      25:21
+`define SEG_EMPTY    10:3
+`define SEG_SEL      2:0
 
 // register segment
 `define SEG_RS       25:21

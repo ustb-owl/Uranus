@@ -5,20 +5,21 @@
 `define CP0_ERET_FULL            32'h42000018
 
 // coprocessor 0 register address definitions
-`define CP0_REG_BADVADDR         5'b01000
-`define CP0_REG_COUNT            5'b01001
-`define CP0_REG_COMPARE          5'b01011
-`define CP0_REG_STATUS           5'b01100
-`define CP0_REG_CAUSE            5'b01101
-`define CP0_REG_EPC              5'b01110
-`define CP0_REG_PRID             5'b01111   // unused?
-`define CP0_REG_CONFIG           5'b10000   // unused?
+`define CP0_REG_BADVADDR         8'b01000000
+`define CP0_REG_COUNT            8'b01001000
+`define CP0_REG_COMPARE          8'b01011000
+`define CP0_REG_STATUS           8'b01100000
+`define CP0_REG_CAUSE            8'b01101000
+`define CP0_REG_EPC              8'b01110000
+`define CP0_REG_PRID             8'b01111000
+`define CP0_REG_EBASE            8'b01111001
+`define CP0_REG_CONFIG           8'b10000000
 
 // coprocessor 0 register value & write mask
 `define CP0_REG_BADVADDR_VALUE   32'h00000000
 `define CP0_REG_BADVADDR_MASK    32'h00000000
 `define CP0_REG_STATUS_VALUE     32'h0040ff00
-`define CP0_REG_STATUS_MASK      32'h0000ff03
+`define CP0_REG_STATUS_MASK      32'h0040ff03
 `define CP0_REG_CAUSE_VALUE      32'h00000000
 `define CP0_REG_CAUSE_MASK       32'h00000300
 `define CP0_REG_EPC_VALUE        32'h00000000
@@ -26,10 +27,13 @@
 // NOTE: 0x55 -> U -> USTB, 0x0000 -> Uranus Zero
 `define CP0_REG_PRID_VALUE       32'h00550000
 `define CP0_REG_PRID_MASK        32'h00000000
+`define CP0_REG_EBASE_VALUE      32'h80000000
+`define CP0_REG_EBASE_MASK       32'h3ffff000
 `define CP0_REG_CONFIG_VALUE     32'h00008000
 `define CP0_REG_CONFIG_MASK      32'h00000000
 
 // coprocessor 0 segment definitions of STATUS & CAUSE
+`define CP0_SEG_BEV              22      // STATUS
 `define CP0_SEG_IM               15:8    // STATUS
 `define CP0_SEG_EXL              1       // STATUS
 `define CP0_SEG_IE               0       // STATUS

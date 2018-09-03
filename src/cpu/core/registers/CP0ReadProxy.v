@@ -9,6 +9,7 @@ module CP0ReadProxy(
     input [`DATA_BUS] cp0_status_in,
     input [`DATA_BUS] cp0_cause_in,
     input [`DATA_BUS] cp0_epc_in,
+    input [`DATA_BUS] cp0_ebase_in,
     input [`DATA_BUS] cp0_read_data_in,
     // from MEM stage
     input mem_cp0_write_flag,
@@ -22,6 +23,7 @@ module CP0ReadProxy(
     output [`DATA_BUS] cp0_status_out,
     output [`DATA_BUS] cp0_cause_out,
     output [`DATA_BUS] cp0_epc_out,
+    output [`DATA_BUS] cp0_ebase_out,
     output reg[`DATA_BUS] cp0_read_data_out
 );
 
@@ -38,7 +40,7 @@ module CP0ReadProxy(
         end
     end
 
-    // generate data output of cp0.status, cp0.cause & cp0.epc (MEM stage)
+    // generate data output of cp0 registers (MEM stage)
     assign cp0_status_out = wb_cp0_write_flag
             && wb_cp0_write_addr == `CP0_REG_STATUS ?
             wb_cp0_data_in : cp0_status_in;
@@ -48,5 +50,8 @@ module CP0ReadProxy(
     assign cp0_epc_out = wb_cp0_write_flag
             && wb_cp0_write_addr == `CP0_REG_EPC ?
             wb_cp0_data_in : cp0_epc_in;
+    assign cp0_ebase_out = wb_cp0_write_flag
+            && wb_cp0_write_addr == `CP0_REG_EBASE ?
+            wb_cp0_data_in : cp0_ebase_in;
 
 endmodule // CP0ReadProxy

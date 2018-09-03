@@ -26,6 +26,7 @@ module MEM(
     input [`DATA_BUS] cp0_status_in,
     input [`DATA_BUS] cp0_cause_in,
     input [`DATA_BUS] cp0_epc_in,
+    input [`DATA_BUS] cp0_ebase_in,
     input [`EXC_TYPE_BUS] exception_type_in,
     input delayslot_flag_in,
     input [`ADDR_BUS] current_pc_addr_in,
@@ -53,6 +54,7 @@ module MEM(
     output reg[`ADDR_BUS] cp0_badvaddr_write_data,
     output [`DATA_BUS] cp0_epc_out,
     output reg[`EXC_TYPE_BUS] exception_type_out,
+    output [`DATA_BUS] exc_base_out,
     output delayslot_flag_out,
     output [`ADDR_BUS] current_pc_addr_out
 );
@@ -196,6 +198,8 @@ module MEM(
     wire int_occured, int_enabled;
 
     assign cp0_epc_out = rst ? cp0_epc_in : 0;
+    assign exc_base_out = rst ?
+            (cp0_status_in[`CP0_SEG_BEV] ? `EXC_BASE : cp0_ebase_in) : 0;
     assign delayslot_flag_out = rst ? delayslot_flag_in : 0;
     assign current_pc_addr_out = rst ? current_pc_addr_in : 0;
     assign int_occured = |(cp0_cause_in[`CP0_SEG_INT] & cp0_status_in[`CP0_SEG_IM]);

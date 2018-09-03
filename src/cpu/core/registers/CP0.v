@@ -23,6 +23,7 @@ module CP0(
     output [`DATA_BUS] status,
     output [`DATA_BUS] cause,
     output [`DATA_BUS] epc,
+    output [`DATA_BUS] ebase,
     output reg[`DATA_BUS] data_out
 );
 
@@ -33,8 +34,9 @@ module CP0(
     reg[`DATA_BUS] reg_status;
     reg[`DATA_BUS] reg_cause;
     reg[`DATA_BUS] reg_epc;
-    reg[`DATA_BUS] reg_config;
     reg[`DATA_BUS] reg_prid;
+    reg[`DATA_BUS] reg_ebase;
+    reg[`DATA_BUS] reg_config;
     reg timer_int;
 
     wire[`DATA_BUS] exc_epc;
@@ -42,6 +44,7 @@ module CP0(
     assign status = rst ? reg_status : 0;
     assign cause = rst ? reg_cause : 0;
     assign epc = rst ? reg_epc : 0;
+    assign ebase = rst ? reg_ebase : 0;
     assign exc_epc = delayslot_flag ? current_pc_addr - 4 : current_pc_addr;
 
     // write data into registers
@@ -54,6 +57,7 @@ module CP0(
             reg_cause <= `CP0_REG_CAUSE_VALUE;
             reg_epc <= `CP0_REG_EPC_VALUE;
             reg_prid <= `CP0_REG_PRID_VALUE;
+            reg_ebase <= `CP0_REG_EBASE_VALUE;
             reg_config <= `CP0_REG_CONFIG_VALUE;
             timer_int <= 0;
         end
@@ -76,11 +80,15 @@ module CP0(
                         timer_int <= 0;
                     end
                     `CP0_REG_STATUS: begin
+                        reg_status[22] <= write_data[22];   // allow write to BEV
                         reg_status[15:8] <= write_data[15:8];
                         reg_status[1:0] <= write_data[1:0];
                     end
                     `CP0_REG_EPC: begin
                         reg_epc <= write_data;
+                    end
+                    `CP0_REG_EBASE: begin
+                        reg_ebase[29:12] <= write_data[29:12];
                     end
                     `CP0_REG_CAUSE: begin
                         reg_cause[9:8] <= write_data[9:8];

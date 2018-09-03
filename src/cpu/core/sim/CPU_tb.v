@@ -21,7 +21,7 @@ module CPU_tb();
     wire[4:0] debug_reg_write_addr;
     wire[31:0] debug_reg_write_data;
 
-    Uranus cpu(
+    Core cpu(
         .clk(clk),
         .rst(rst),
         .halt(0),

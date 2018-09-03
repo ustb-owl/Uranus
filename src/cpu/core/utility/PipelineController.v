@@ -12,6 +12,7 @@ module PipelineController(
     // exception signals
     input [`DATA_BUS] cp0_epc,
     input [`EXC_TYPE_BUS] exception_type,
+    input [`DATA_BUS] exc_base,
     // stall signals for each mid-stage
     output stall_pc,
     output stall_if,
@@ -61,7 +62,7 @@ module PipelineController(
             exc_pc <= cp0_epc;
         end
         else if (exception_type != `EXC_TYPE_NULL) begin
-            exc_pc <= `EXC_PC;
+            exc_pc <= exc_base + `EXC_OFFSET;
         end
         else begin
             exc_pc <= `INIT_PC;

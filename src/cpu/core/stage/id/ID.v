@@ -252,7 +252,7 @@ module ID(
                     write_reg_addr <= inst_rt;
                 end
                 `OP_CP0: begin
-                    if (inst_rs == `CP0_MFC0 && !inst[10:0]) begin
+                    if (inst_rs == `CP0_MFC0 && !inst[`SEG_EMPTY]) begin
                         write_reg_en <= 1;
                         write_reg_addr <= inst_rt;
                     end
@@ -459,15 +459,15 @@ module ID(
         else begin
             case (inst_op)
                 `OP_CP0: begin
-                    if (inst_rs == `CP0_MTC0 && !inst[10:0]) begin
+                    if (inst_rs == `CP0_MTC0 && !inst[`SEG_EMPTY]) begin
                         cp0_write_flag <= 1;
                         cp0_read_flag <= 0;
-                        cp0_addr <= inst_rd;
+                        cp0_addr <= {inst_rd, inst[`SEG_SEL]};
                     end
-                    else if (inst_rs == `CP0_MFC0 && !inst[10:0]) begin
+                    else if (inst_rs == `CP0_MFC0 && !inst[`SEG_EMPTY]) begin
                         cp0_write_flag <= 0;
                         cp0_read_flag <= 1;
-                        cp0_addr <= inst_rd;
+                        cp0_addr <= {inst_rd, inst[`SEG_SEL]};
                     end
                     else begin
                         cp0_write_flag <= 0;
@@ -492,7 +492,7 @@ module ID(
         else begin
             case (inst_op)
                 `OP_CP0: begin
-                    if (inst_rs == `CP0_MTC0 && !inst[10:0]) begin
+                    if (inst_rs == `CP0_MTC0 && !inst[`SEG_EMPTY]) begin
                         cp0_write_data <= reg_data_1;
                     end
                     else begin
