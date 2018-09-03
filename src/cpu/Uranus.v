@@ -6,7 +6,7 @@ module Uranus(
     input         aclk,
     input         aresetn,
 
-    input  [5:0]  int,
+    input  [4:0]  int,
 
     output [3:0]  arid,
     output [31:0] araddr,
@@ -49,10 +49,10 @@ module Uranus(
     input         bvalid,
     output        bready,
 
-    `DEBUG output [31:0] debug_wb_pc,
-    `DEBUG output [3:0]  debug_wb_rf_wen,
-    `DEBUG output [4:0]  debug_wb_rf_wnum,
-    `DEBUG output [31:0] debug_wb_rf_wdata
+    `DEBUG output [31:0] debug_pc_addr,
+    `DEBUG output [3:0]  debug_reg_write_en,
+    `DEBUG output [4:0]  debug_reg_write_addr,
+    `DEBUG output [31:0] debug_reg_write_data
 );
 
     wire       exception_flag_conn;
@@ -93,7 +93,7 @@ module Uranus(
     wire[31:0] read_addr_conn;
     wire[31:0] write_addr_conn;
 
-    assign debug_wb_rf_wen = halt_conn ? 0 : debug_reg_write_en_conn;
+    assign debug_reg_write_en = halt_conn ? 0 : debug_reg_write_en_conn;
 
     MMU mmu(
         .rst(aresetn),
@@ -209,7 +209,7 @@ module Uranus(
         .rst(aresetn),
 
         .halt(halt_conn),
-        .interrupt(int[4:0]),
+        .interrupt(int),
 
         .ram_en(ram_en_conn),
         .ram_write_en(ram_write_en_conn),
@@ -223,10 +223,10 @@ module Uranus(
         .rom_write_data(rom_write_data_conn),
         .rom_read_data(rom_read_data_conn),
 
-        .debug_pc_addr(debug_wb_pc),
+        .debug_pc_addr(debug_pc_addr),
         .debug_reg_write_en(debug_reg_write_en_conn),
-        .debug_reg_write_addr(debug_wb_rf_wnum),
-        .debug_reg_write_data(debug_wb_rf_wdata),
+        .debug_reg_write_addr(debug_reg_write_addr),
+        .debug_reg_write_data(debug_reg_write_data),
         .debug_exception_flag(exception_flag_conn)
     );
 
