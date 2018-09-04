@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
 
+`include "debug.v"
+
 module Top(
     input clk,
     input rst,
@@ -15,8 +17,8 @@ module Top(
     // SPI
     inout spi_mosi,
     inout spi_miso,
-    inout spi_io2,
-    inout spi_io3,
+    inout spi_io2,   // quad mode
+    inout spi_io3,   // quad mode
     inout spi_sck,
     inout spi_ss,
     // UART
@@ -47,15 +49,17 @@ module Top(
 
     // SPI
     wire spi_io0_i, spi_io0_o, spi_io0_t, spi_io1_i, spi_io1_o, spi_io1_t;
-    wire spi_io2_i, spi_io2_o, spi_io2_t, spi_io3_i, spi_io3_o, spi_io3_t;
+    // wire spi_io2_i, spi_io2_o, spi_io2_t, spi_io3_i, spi_io3_o, spi_io3_t;
     wire spi_sck_i, spi_sck_o, spi_sck_t, spi_ss_i, spi_ss_o, spi_ss_t;
 
-    IOBUF spi_mosi_iob(.IO(spi_mosi), .I(spi_io0_i), .O(spi_io0_o), .T(spi_io0_t));
-    IOBUF spi_miso_iob(.IO(spi_miso), .I(spi_io1_i), .O(spi_io1_o), .T(spi_io1_t));
-    IOBUF spi_io2_iob(.IO(spi_io2), .I(spi_io2_i), .O(spi_io2_o), .T(spi_io2_t));
-    IOBUF spi_io3_iob(.IO(spi_io3), .I(spi_io3_i), .O(spi_io3_o), .T(spi_io3_t));
-    IOBUF spi_sck_iob(.IO(spi_sck), .I(spi_sck_i), .O(spi_sck_o), .T(spi_sck_t));
-    IOBUF spi_ss_iob(.IO(spi_ss), .I(spi_ss_i), .O(spi_ss_o), .T(spi_ss_t));
+    assign spi_io2 = 1'bz; assign spi_io3 = 1'bz;
+
+    IOBUF spi_mosi_iob(.IO(spi_mosi), .I(spi_io0_o), .O(spi_io0_i), .T(spi_io0_t));
+    IOBUF spi_miso_iob(.IO(spi_miso), .I(spi_io1_o), .O(spi_io1_i), .T(spi_io1_t));
+    // IOBUF spi_io2_iob(.IO(spi_io2), .I(spi_io2_o), .O(spi_io2_i), .T(spi_io2_t));
+    // IOBUF spi_io3_iob(.IO(spi_io3), .I(spi_io3_o), .O(spi_io3_i), .T(spi_io3_t));
+    IOBUF spi_sck_iob(.IO(spi_sck), .I(spi_sck_o), .O(spi_sck_i), .T(spi_sck_t));
+    IOBUF spi_ss_iob(.IO(spi_ss), .I(spi_ss_o), .O(spi_ss_i), .T(spi_ss_t));
 
     // VGA
     wire[5:0] vga_red, vga_green, vga_blue;
@@ -88,12 +92,12 @@ module Top(
         .spi_io1_i(spi_io1_i),
         .spi_io1_o(spi_io1_o),
         .spi_io1_t(spi_io1_t),
-        .spi_io2_i(spi_io2_i),
-        .spi_io2_o(spi_io2_o),
-        .spi_io2_t(spi_io2_t),
-        .spi_io3_i(spi_io3_i),
-        .spi_io3_o(spi_io3_o),
-        .spi_io3_t(spi_io3_t),
+        // .spi_io2_i(spi_io2_i),
+        // .spi_io2_o(spi_io2_o),
+        // .spi_io2_t(spi_io2_t),
+        // .spi_io3_i(spi_io3_i),
+        // .spi_io3_o(spi_io3_o),
+        // .spi_io3_t(spi_io3_t),
         .spi_sck_i(spi_sck_i),
         .spi_sck_o(spi_sck_o),
         .spi_sck_t(spi_sck_t),
