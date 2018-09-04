@@ -64,22 +64,22 @@ module SegDisplay(
         end
         else begin
             case (cur_num)
-                4'h0: seg_bit <= 8'b01111110;
-                4'h1: seg_bit <= 8'b00110000;
-                4'h2: seg_bit <= 8'b01101101;
-                4'h3: seg_bit <= 8'b01111001;
-                4'h4: seg_bit <= 8'b00110011;
-                4'h5: seg_bit <= 8'b01011011;
-                4'h6: seg_bit <= 8'b01011111;
-                4'h7: seg_bit <= 8'b01110000;
-                4'h8: seg_bit <= 8'b01111111;
-                4'h9: seg_bit <= 8'b01111011;
-                4'ha: seg_bit <= 8'b01110111;
-                4'hb: seg_bit <= 8'b00011111;
-                4'hc: seg_bit <= 8'b01001110;
-                4'hd: seg_bit <= 8'b00111101;
-                4'he: seg_bit <= 8'b01001111;
-                4'hf: seg_bit <= 8'b01000111;
+                4'h0: seg_bit <= 8'b11111100;
+                4'h1: seg_bit <= 8'b01100000;
+                4'h2: seg_bit <= 8'b11011010;
+                4'h3: seg_bit <= 8'b11110010;
+                4'h4: seg_bit <= 8'b01100110;
+                4'h5: seg_bit <= 8'b10110110;
+                4'h6: seg_bit <= 8'b10111110;
+                4'h7: seg_bit <= 8'b11100000;
+                4'h8: seg_bit <= 8'b11111110;
+                4'h9: seg_bit <= 8'b11110110;
+                4'ha: seg_bit <= 8'b11101110;
+                4'hb: seg_bit <= 8'b00111110;
+                4'hc: seg_bit <= 8'b10011100;
+                4'hd: seg_bit <= 8'b01111010;
+                4'he: seg_bit <= 8'b10011110;
+                4'hf: seg_bit <= 8'b10001110;
             endcase
         end
     end
