@@ -1,62 +1,59 @@
 `timescale 1ns / 1ps
 
-module  GPIO(
-    input   wire        clk_timer,
-    input   wire        clk     ,
-    input   wire        rst     ,
-    // read and write from CPU
-    // ar
-    input   wire[3 :0]  arid    ,
-    input   wire[31:0]  araddr  ,
-    input   wire[7 :0]  arlen   ,
-    input   wire[2 :0]  arsize  ,
-    input   wire[1 :0]  arburst ,
-    input   wire[1 :0]  arlock  ,
-    input   wire[3 :0]  arcache ,
-    input   wire[2 :0]  arprot  ,
-    input   wire        arvalid ,
-    output  wire        arready ,
-    //r
-    output  wire[3 :0]  rid     ,
-    output  wire[31:0]  rdata   ,
-    output  wire[1 :0]  rresp   ,
-    output  wire        rlast   ,
-    output  wire        rvalid  ,
-    input   wire        rready  ,
-    //aw
-    input   wire[3 :0]  awid    ,
-    input   wire[31:0]  awaddr  ,
-    input   wire[7 :0]  awlen   ,
-    input   wire[2 :0]  awsize  ,
-    input   wire[1 :0]  awburst ,
-    input   wire[1 :0]  awlock  ,
-    input   wire[3 :0]  awcache ,
-    input   wire[2 :0]  awprot  ,
-    input   wire        awvalid ,
-    output  wire        awready ,
-    //w
-    input   wire[3 :0]  wid     ,
-    input   wire[31:0]  wdata   ,
-    input   wire[3 :0]  wstrb   ,
-    input   wire        wlast   ,
-    input   wire        wvalid  ,
-    output  wire        wready  ,
-    //b
-    output  wire[3 :0]  bid     ,
-    output  wire[1 :0]  bresp   ,
-    output  wire        bvalid  ,
-    input   wire        bready  ,
+module GPIO(
+    input clk_timer,
+    input clk,
+    input rst,
+    // AXI bus IO
+    input [3:0] arid,
+    input [31:0] araddr,
+    input [7:0] arlen,
+    input [2:0] arsize,
+    input [1:0] arburst,
+    input [1:0] arlock,
+    input [3:0] arcache,
+    input [2:0] arprot,
+    input arvalid,
+    output arready,
+    output [3:0] rid,
+    output [31:0] rdata,
+    output [1:0] rresp,
+    output rlast,
+    output rvalid,
+    input rready,
+    input [3:0] awid,
+    input [31:0] awaddr,
+    input [7:0] awlen,
+    input [2:0] awsize,
+    input [1:0] awburst,
+    input [1:0] awlock,
+    input [3:0] awcache,
+    input [2:0] awprot,
+    input awvalid,
+    output awready,
+    input [3:0] wid,
+    input [31:0] wdata,
+    input [3:0] wstrb,
+    input wlast,
+    input wvalid,
+    output wready,
+    output [3:0] bid,
+    output [1:0] bresp,
+    output bvalid,
+    input bready,
     // GPIO control
-    input   wire[7 :0]  switch  ,
-    input   wire[15:0]  keypad  ,
-    output  reg [1 :0]  bicolor_led_0,
-    output  reg [1 :0]  bicolor_led_1,
-    output  reg [15:0]  led     ,
-    output  reg [31:0]  num
+    input [7:0] switch,
+    input [15:0] keypad,
+    output reg[1:0] bicolor_led_0,
+    output reg[1:0] bicolor_led_1,
+    output reg[15:0] led,
+    output reg[31:0] num
 );
 
-//--------------------------{axi interface}begin-------------------------//
-    reg busy,write,R_or_W;
+    // code from confreg.v
+    //--------------------------{axi interface} begin-------------------------//
+
+    reg busy, write, R_or_W;
 
     wire    ar_enter    = arvalid & arready;
     wire    r_retire    = rvalid  & rready & rlast;
@@ -136,14 +133,15 @@ module  GPIO(
     assign  bresp   = 2'b0;
     assign  rresp   = 2'b0;
 
-//---------------------------{axi interface}end--------------------------//
+    //---------------------------{axi interface} end--------------------------//
+
 
     // flags
-    wire read_flag  = ar_enter;
+    wire read_flag = ar_enter;
     wire write_flag = aw_enter;
 
-    wire[31:0]  addr    = read_flag ? araddr : write_flag ? awaddr : 32'h0;
-    wire[31:0]  data_in = wdata;
+    wire[31:0] addr = read_flag ? araddr : write_flag ? awaddr : 32'hffff;
+    wire[31:0] data_in = wdata;
 
     // address definition
     wire[11:0] address = addr[11:0];
@@ -153,28 +151,25 @@ module  GPIO(
             kTimerAddr = 12'h018;
 
     // timer
-    reg[31:0] timer, timer_write_flag;
-    wire[31:0] next_timer = timer + 1;
+    reg[31:0] timer, timer_delay_1, timer_delay_2;
+
     always @(posedge clk_timer) begin
         if (!rst) begin
             timer <= 0;
-            timer_write_flag <= 0;
-        end
-        else if (!timer_write_flag) begin
-            if (write_flag && address == kTimerAddr) begin
-                timer <= data_in;
-                timer_write_flag <= 1;
-            end
-            else begin
-                timer <= next_timer;
-            end
-        end
-        else if (!write_flag) begin
-            timer <= next_timer;
-            timer_write_flag <= 0;
         end
         else begin
-            timer <= next_timer;
+            timer <= timer + 1;
+        end
+    end
+
+    always @(posedge clk) begin
+        if (!rst) begin
+            timer_delay_1 <= 0;
+            timer_delay_2 <= 0;
+        end
+        else begin
+            timer_delay_1 <= timer;
+            timer_delay_2 <= timer_delay_1;
         end
     end
 
@@ -191,12 +186,13 @@ module  GPIO(
                 kBicolor1Addr: data_out <= {30'h0, bicolor_led_1};
                 kLEDAddr: data_out <= {16'h0, led};
                 kNumAddr: data_out <= num;
-                kTimerAddr: data_out <= timer;
+                kTimerAddr: data_out <= timer_delay_2;
+                default: data_out <= 0;
             endcase
         end
     end
 
-    // write
+   // write
     always @(posedge clk) begin
         if (!rst) begin
             bicolor_led_0 <= 2'h0;

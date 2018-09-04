@@ -10,6 +10,7 @@ module Keypad(
     output [15:0] keypad
 );
 
-    // TODO
+    assign keypad_col = 0;
+    assign keypad = 0;
 
 endmodule // Keypad

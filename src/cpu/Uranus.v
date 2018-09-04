@@ -6,7 +6,11 @@ module Uranus(
     input         aclk,
     input         aresetn,
 
-    input  [4:0]  int,
+    input         int_0,
+    input         int_1,
+    input         int_2,
+    input         int_3,
+    input         int_4,
 
     output [3:0]  arid,
     output [31:0] araddr,
@@ -209,7 +213,7 @@ module Uranus(
         .rst(aresetn),
 
         .halt(halt_conn),
-        .interrupt(int),
+        .interrupt({int_4, int_3, int_2, int_1, int_0}),
 
         .ram_en(ram_en_conn),
         .ram_write_en(ram_write_en_conn),
