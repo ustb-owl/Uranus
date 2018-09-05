@@ -17,8 +17,8 @@ module Top(
     // SPI
     inout spi_mosi,
     inout spi_miso,
-    inout spi_sck,
-    inout spi_ss,
+    output spi_sck,
+    output spi_ss,
     // UART
     input uart_rxd,
     output uart_txd,
