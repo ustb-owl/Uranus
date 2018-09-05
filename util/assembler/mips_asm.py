@@ -2,10 +2,12 @@ import sys
 import asmgen
 
 '''
+notice:
+    suitable for MIPSel (little endian)
 usage:
     $ python3 mips_asm.py asm.s
     or
-    $ python3 mips_asm.py asm.s out.bin
+    $ python3 mips_asm.py asm.s out.[hex/bin]
 '''
 
 def main():
@@ -20,7 +22,7 @@ def main():
     else:
         bin_path = path[:path.rfind('.')] + '.bin'
 
-    # generate bin file
+    # generate file
     generator = asmgen.AsmGenerator()
     with open(path, 'r') as f:
         for l in f.readlines():
@@ -29,7 +31,7 @@ def main():
                 print('unknown instruction: %s' % line)
                 exit(1)
 
-    # output bin file
+    # output file
     with open(bin_path, 'w') as f:
         f.write(generator.generate() + '\n')
 
