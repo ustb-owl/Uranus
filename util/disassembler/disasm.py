@@ -42,7 +42,7 @@ def get_str(data, rep: Repr, addr):
     elif rep == Repr.RegInt:
         s = '$' + str(data) + ', '
     elif rep == Repr.Offset:
-        s = hex((((data << 2) | 0xfffc0000) + addr) & 0xffffffff)
+        s = hex((((data << 2) | 0xfffc0000) + addr + 4) & 0xffffffff)
     elif rep == Repr.Addr:
         s = hex(((addr + 4) & 0xf0000000) | (data << 2))
     elif rep == Repr.Sel:
