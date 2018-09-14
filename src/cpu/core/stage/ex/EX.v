@@ -113,17 +113,6 @@ module EX(
         .result_counter (result_counter)
     );
 
-    wire[`DOUBLE_DATA_BUS]  result_mult;
-    Multilpier  multiplier0(
-        .rst            (rst),
-        .funct          (funct),
-        .operand_1      (operand_1),
-        .operand_2      (operand_2),
-        .hi             (hi_in),
-        .lo             (lo_in),
-        .result_mult    (result_mult)
-    );
-
     // calculate result
     always @(*) begin
         case (funct)
@@ -141,7 +130,7 @@ module EX(
             `FUNCT_MOVN, `FUNCT_MOVZ:   result  <= operand_1;
             `FUNCT2_CLZ, `FUNCT2_CLO:   result  <= result_counter;
             // mult
-            `FUNCT2_MUL:    result  <= result_mult[31:0];
+            `FUNCT2_MUL: result  <= mult_div_result[31:0];
             // HI & LO
             `FUNCT_MFHI: result <= hi;
             `FUNCT_MFLO: result <= lo;
@@ -189,16 +178,12 @@ module EX(
                 lo_out <= operand_1;
             end
             // multiplication & division
-            `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV, `FUNCT_DIVU: begin
+            `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV, `FUNCT_DIVU,
+            `FUNCT2_MADD, `FUNCT2_MADDU, 
+            `FUNCT2_MSUB, `FUNCT2_MSUBU: begin
                 hilo_write_en <= 1;
                 hi_out <= mult_div_result[63:32];
                 lo_out <= mult_div_result[31:0];
-            end
-            `FUNCT2_MADD, `FUNCT2_MADDU, 
-            `FUNCT2_MSUB, `FUNCT2_MSUBU:    begin
-                hilo_write_en <= 1;
-                hi_out <= result_mult[63:32];
-                lo_out <= result_mult[31:0];
             end
             default: begin
                 hilo_write_en <= 0;
