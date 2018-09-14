@@ -5,11 +5,10 @@ module Keypad(
     input rst,
     // keypad control
     input [3:0] keypad_row,
-    output [3:0] keypad_col,
+    output reg[3:0] keypad_col,
     // data output
-    output [15:0] keypad
+    output reg[15:0] keypad
 );
-reg [3:0] keypad_col;
 reg [3:0] key_value;
 reg [5:0] count;//delay_20ms
 reg [2:0] state;  //状态标志
@@ -110,9 +109,10 @@ always @(clk_500khz or col_reg or row_reg)
                      8'b0111_1011:keypad<=16'h4000;
                      8'b0111_0111:keypad<=16'h8000;     
                     endcase 
-             end   
+             end  
+        else begin
+            keypad <= 0;
+        end 
   end      
-
-    
 
 endmodule // Keypad
