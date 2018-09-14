@@ -240,52 +240,6 @@ module Core(
         .write_addr(wb_0_write_reg_addr_out)
     );
 
-    EX ex_0(
-        .funct(idex_0_funct_out),
-        .shamt(idex_0_shamt_out),
-        .operand_1(idex_0_operand_1_out),
-        .operand_2(idex_0_operand_2_out),
-        .write_reg_en_in(idex_0_write_reg_en_out),
-        .write_reg_addr_in(idex_0_write_reg_addr_out),
-        .result_out(ex_0_result_out),
-        .write_reg_en_out(ex_0_write_reg_en_out),
-        .write_reg_addr_out(ex_0_write_reg_addr_out),
-        .hilo_write_en(ex_0_hilo_write_en),
-        .hi_out(ex_0_hi_out),
-        .lo_out(ex_0_lo_out),
-        .hi_in(hiloreadproxy_0_hi_out),
-        .lo_in(hiloreadproxy_0_lo_out),
-        .mem_read_flag_in(idex_0_mem_read_flag_out),
-        .mem_write_flag_in(idex_0_mem_write_flag_out),
-        .mem_sign_ext_flag_in(idex_0_mem_sign_ext_flag_out),
-        .mem_sel_in(idex_0_mem_sel_out),
-        .mem_write_data_in(idex_0_mem_write_data_out),
-        .mem_read_flag_out(ex_0_mem_read_flag_out),
-        .mem_write_flag_out(ex_0_mem_write_flag_out),
-        .mem_sign_ext_flag_out(ex_0_mem_sign_ext_flag_out),
-        .mem_sel_out(ex_0_mem_sel_out),
-        .mem_write_data_out(ex_0_mem_write_data_out),
-        .rst(rst_1),
-        .stall_request(ex_0_stall_request),
-        .ex_load_flag(ex_0_ex_load_flag),
-        .cp0_write_en(ex_0_cp0_write_en),
-        .cp0_addr_out(ex_0_cp0_addr_out),
-        .cp0_write_data_out(ex_0_cp0_write_data_out),
-        .cp0_write_flag_in(idex_0_cp0_write_flag_out),
-        .cp0_read_flag_in(idex_0_cp0_read_flag_out),
-        .cp0_addr_in(idex_0_cp0_addr_out),
-        .cp0_write_data_in(idex_0_cp0_write_data_out),
-        .cp0_read_data_in(cp0readproxy_0_cp0_read_data_out),
-        .mult_div_done_flag(multdiv_0_done),
-        .mult_div_result(multdiv_0_result),
-        .exception_type_in(idex_0_exception_type_out),
-        .delayslot_flag_in(idex_0_delayslot_flag_out),
-        .current_pc_addr_in(idex_0_current_pc_addr_out),
-        .exception_type_out(ex_0_exception_type_out),
-        .delayslot_flag_out(ex_0_delayslot_flag_out),
-        .current_pc_addr_out(ex_0_current_pc_addr_out)
-    );
-
     EXMEM exmem_0(
         .result_in(ex_0_result_out),
         .write_reg_en_in(ex_0_write_reg_en_out),
@@ -392,17 +346,6 @@ module Core(
         .cp0_ebase_out(cp0readproxy_0_cp0_ebase_out)
     );
 
-    MultDiv multdiv_0(
-        .funct(idex_0_funct_out),
-        .operand_1(idex_0_operand_1_out),
-        .operand_2(idex_0_operand_2_out),
-        .clk(clk_1),
-        .rst(rst_1),
-        .done(multdiv_0_done),
-        .result(multdiv_0_result),
-        .flush(pipelinecontroller_0_flush)
-    );
-
     IDEX idex_0(
         .write_reg_en_in(id_0_write_reg_en),
         .write_reg_addr_in(id_0_write_reg_addr),
@@ -481,43 +424,6 @@ module Core(
         .delayslot_flag(mem_0_delayslot_flag_out),
         .exception_type(mem_0_exception_type_out),
         .ebase(cp0_0_ebase)
-    );
-
-    ID id_0(
-        .addr(ifid_0_addr_out),
-        .write_reg_en(id_0_write_reg_en),
-        .write_reg_addr(id_0_write_reg_addr),
-        .operand_2(id_0_operand_2),
-        .operand_1(id_0_operand_1),
-        .shamt(id_0_shamt),
-        .funct(id_0_funct),
-        .reg_addr_2(id_0_reg_addr_2),
-        .reg_addr_1(id_0_reg_addr_1),
-        .reg_read_en_2(id_0_reg_read_en_2),
-        .reg_read_en_1(id_0_reg_read_en_1),
-        .reg_data_1(regreadproxy_0_read_data_1),
-        .reg_data_2(regreadproxy_0_read_data_2),
-        .mem_read_flag(id_0_mem_read_flag),
-        .mem_write_flag(id_0_mem_write_flag),
-        .mem_sign_ext_flag(id_0_mem_sign_ext_flag),
-        .mem_sel(id_0_mem_sel),
-        .mem_write_data(id_0_mem_write_data),
-        .rst(rst_1),
-        .stall_request(id_0_stall_request),
-        .load_related_1(regreadproxy_0_load_related_1),
-        .load_related_2(regreadproxy_0_load_related_2),
-        .inst(ifid_0_inst_out),
-        .cp0_write_flag(id_0_cp0_write_flag),
-        .cp0_read_flag(id_0_cp0_read_flag),
-        .cp0_addr(id_0_cp0_addr),
-        .cp0_write_data(id_0_cp0_write_data),
-        .delayslot_flag_out(id_0_delayslot_flag_out),
-        .exception_type(id_0_exception_type),
-        .current_pc_addr(id_0_current_pc_addr),
-        .delayslot_flag_in(idex_0_current_delayslot_flag),
-        .branch_addr(id_0_branch_addr),
-        .branch_flag(id_0_branch_flag),
-        .next_delayslot_flag_out(id_0_next_delayslot_flag_out)
     );
 
     MEMWB memwb_0(
@@ -653,6 +559,102 @@ module Core(
         .ram_addr(mem_0_ram_addr),
         .cp0_ebase_in(cp0readproxy_0_cp0_ebase_out),
         .exc_base_out(mem_0_exc_base_out)
+    );
+
+    EX ex_0(
+        .funct(idex_0_funct_out),
+        .shamt(idex_0_shamt_out),
+        .operand_1(idex_0_operand_1_out),
+        .operand_2(idex_0_operand_2_out),
+        .write_reg_en_in(idex_0_write_reg_en_out),
+        .write_reg_addr_in(idex_0_write_reg_addr_out),
+        .result_out(ex_0_result_out),
+        .write_reg_en_out(ex_0_write_reg_en_out),
+        .write_reg_addr_out(ex_0_write_reg_addr_out),
+        .hilo_write_en(ex_0_hilo_write_en),
+        .hi_out(ex_0_hi_out),
+        .lo_out(ex_0_lo_out),
+        .hi_in(hiloreadproxy_0_hi_out),
+        .lo_in(hiloreadproxy_0_lo_out),
+        .mem_read_flag_in(idex_0_mem_read_flag_out),
+        .mem_write_flag_in(idex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_in(idex_0_mem_sign_ext_flag_out),
+        .mem_sel_in(idex_0_mem_sel_out),
+        .mem_write_data_in(idex_0_mem_write_data_out),
+        .mem_read_flag_out(ex_0_mem_read_flag_out),
+        .mem_write_flag_out(ex_0_mem_write_flag_out),
+        .mem_sign_ext_flag_out(ex_0_mem_sign_ext_flag_out),
+        .mem_sel_out(ex_0_mem_sel_out),
+        .mem_write_data_out(ex_0_mem_write_data_out),
+        .rst(rst_1),
+        .stall_request(ex_0_stall_request),
+        .ex_load_flag(ex_0_ex_load_flag),
+        .cp0_write_en(ex_0_cp0_write_en),
+        .cp0_addr_out(ex_0_cp0_addr_out),
+        .cp0_write_data_out(ex_0_cp0_write_data_out),
+        .cp0_write_flag_in(idex_0_cp0_write_flag_out),
+        .cp0_read_flag_in(idex_0_cp0_read_flag_out),
+        .cp0_addr_in(idex_0_cp0_addr_out),
+        .cp0_write_data_in(idex_0_cp0_write_data_out),
+        .cp0_read_data_in(cp0readproxy_0_cp0_read_data_out),
+        .mult_div_done_flag(multdiv_0_done),
+        .mult_div_result(multdiv_0_result),
+        .exception_type_in(idex_0_exception_type_out),
+        .delayslot_flag_in(idex_0_delayslot_flag_out),
+        .current_pc_addr_in(idex_0_current_pc_addr_out),
+        .exception_type_out(ex_0_exception_type_out),
+        .delayslot_flag_out(ex_0_delayslot_flag_out),
+        .current_pc_addr_out(ex_0_current_pc_addr_out)
+    );
+
+    MultDiv multdiv_0(
+        .funct(idex_0_funct_out),
+        .operand_1(idex_0_operand_1_out),
+        .operand_2(idex_0_operand_2_out),
+        .hi(hiloreadproxy_0_hi_out),
+        .lo(hiloreadproxy_0_lo_out),
+        .clk(clk_1),
+        .rst(rst_1),
+        .done(multdiv_0_done),
+        .result(multdiv_0_result),
+        .flush(pipelinecontroller_0_flush)
+    );
+
+    ID id_0(
+        .addr(ifid_0_addr_out),
+        .write_reg_en(id_0_write_reg_en),
+        .write_reg_addr(id_0_write_reg_addr),
+        .operand_2(id_0_operand_2),
+        .operand_1(id_0_operand_1),
+        .shamt(id_0_shamt),
+        .funct(id_0_funct),
+        .reg_addr_2(id_0_reg_addr_2),
+        .reg_addr_1(id_0_reg_addr_1),
+        .reg_read_en_2(id_0_reg_read_en_2),
+        .reg_read_en_1(id_0_reg_read_en_1),
+        .reg_data_1(regreadproxy_0_read_data_1),
+        .reg_data_2(regreadproxy_0_read_data_2),
+        .mem_read_flag(id_0_mem_read_flag),
+        .mem_write_flag(id_0_mem_write_flag),
+        .mem_sign_ext_flag(id_0_mem_sign_ext_flag),
+        .mem_sel(id_0_mem_sel),
+        .mem_write_data(id_0_mem_write_data),
+        .rst(rst_1),
+        .stall_request(id_0_stall_request),
+        .load_related_1(regreadproxy_0_load_related_1),
+        .load_related_2(regreadproxy_0_load_related_2),
+        .inst(ifid_0_inst_out),
+        .cp0_write_flag(id_0_cp0_write_flag),
+        .cp0_read_flag(id_0_cp0_read_flag),
+        .cp0_addr(id_0_cp0_addr),
+        .cp0_write_data(id_0_cp0_write_data),
+        .delayslot_flag_out(id_0_delayslot_flag_out),
+        .exception_type(id_0_exception_type),
+        .current_pc_addr(id_0_current_pc_addr),
+        .delayslot_flag_in(idex_0_current_delayslot_flag),
+        .branch_addr(id_0_branch_addr),
+        .branch_flag(id_0_branch_flag),
+        .next_delayslot_flag_out(id_0_next_delayslot_flag_out)
     );
 
 endmodule // Core
