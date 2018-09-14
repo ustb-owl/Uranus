@@ -59,6 +59,7 @@ module MultDiv(
             end
             `FUNCT2_MSUB, `FUNCT2_MSUBU: begin
                 result <= result_neg_flag ? mult_result + {hi, lo} : -mult_result + {hi, lo};
+            end
             `FUNCT_DIV, `FUNCT_DIVU: begin
                 result <= {
                     remainder_neg_flag ? -remainder : remainder,
@@ -80,7 +81,7 @@ module MultDiv(
             case (funct)
                 `FUNCT_MULT, `FUNCT_MULTU,
                 `FUNCT2_MUL, `FUNCT2_MADD, `FUNCT2_MADDU,
-                `FUNCT2_SUB, `FUNCT2_MSUBU: begin
+                `FUNCT2_MSUB, `FUNCT2_MSUBU: begin
                     cycle_counter <= 1'b1 << (kMultCycle - 1);
                 end
                 `FUNCT_DIV, `FUNCT_DIVU: begin

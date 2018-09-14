@@ -110,7 +110,7 @@ module EX(
     BitCounter  bitcounter0(
         .funct          (funct),
         .operand_1      (operand_1),
-        .result_counter (result_counter)
+        .result_count   (result_counter)
     );
 
     // calculate result

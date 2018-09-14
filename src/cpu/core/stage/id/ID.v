@@ -586,7 +586,7 @@ module ID(
                             `FUNCT2_CLZ, `FUNCT2_CLO,
                             `FUNCT2_MUL,
                             `FUNCT2_MADD, `FUNCT2_MADDU,
-                            `FUCNT2_MSUB, `FUNCT2_MSUBU: begin
+                            `FUNCT2_MSUB, `FUNCT2_MSUBU: begin
                                 invalid_inst_flag <= 0;
                                 overflow_inst_flag <= 0;
                                 syscall_flag <= 0;
