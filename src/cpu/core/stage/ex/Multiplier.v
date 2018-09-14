@@ -58,8 +58,8 @@ module  Multiplier(
                     result_mult         <= ~result_mult_temp + 1 + {hi, lo};
                 end
 
-                default:    begin   // `FUNCT_MULTU
-                    result_mult         <= result_mult_temp;
+                default:    begin
+                    result_mult         <= 64'h0;
                 end
             
             endcase
