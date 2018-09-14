@@ -58,7 +58,11 @@ module mycpu_top(
         .aclk(aclk),
         .aresetn(aresetn),
 
-        .int(int),
+        .int_0(int[0]),
+        .int_1(int[1]),
+        .int_2(int[2]),
+        .int_3(int[3]),
+        .int_4(int[4]),
 
         .arid(arid),
         .araddr(araddr),
@@ -101,10 +105,10 @@ module mycpu_top(
         .bvalid(bvalid),
         .bready(bready),
 
-        .debug_wb_pc(debug_wb_pc),
-        .debug_wb_rf_wen(debug_wb_rf_wen),
-        .debug_wb_rf_wnum(debug_wb_rf_wnum),
-        .debug_wb_rf_wdata(debug_wb_rf_wdata)
+        .debug_pc_addr(debug_wb_pc),
+        .debug_reg_write_en(debug_wb_rf_wen),
+        .debug_reg_write_addr(debug_wb_rf_wnum),
+        .debug_reg_write_data(debug_wb_rf_wdata)
     );
 
 endmodule // mycpu_top
