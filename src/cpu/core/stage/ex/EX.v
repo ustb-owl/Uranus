@@ -106,6 +106,24 @@ module EX(
                 (operand_1[31] && operand_2[31] && result_sum[31]))
             : (operand_1 < operand_2);
 
+    wire[`DATA_BUS] result_counter;
+    BitCounter  bitcounter0(
+        .funct          (funct),
+        .operand_1      (operand_1),
+        .result_counter (result_counter)
+    );
+
+    wire[`DOUBLE_DATA_BUS]  result_mult;
+    Multilpier  multiplier0(
+        .rst            (rst),
+        .funct          (funct),
+        .operand_1      (operand_1),
+        .operand_2      (operand_2),
+        .hi             (hi_in),
+        .lo             (lo_in),
+        .result_mult    (result_mult)
+    );
+
     // calculate result
     always @(*) begin
         case (funct)
@@ -119,6 +137,11 @@ module EX(
             // arithmetic
             `FUNCT_ADD, `FUNCT_ADDU,
             `FUNCT_SUB, `FUNCT_SUBU: result <= result_sum;
+            // move
+            `FUNCT_MOVN, `FUNCT_MOVZ:   result  <= operand_1;
+            `FUNCT2_CLZ, `FUNCT2_CLO:   result  <= result_counter;
+            // mult
+            `FUNCT2_MUL:    result  <= result_mult[31:0];
             // HI & LO
             `FUNCT_MFHI: result <= hi;
             `FUNCT_MFLO: result <= lo;
@@ -143,7 +166,10 @@ module EX(
             `FUNCT_ADD, `FUNCT_SUB: write_reg_en <= !overflow_sum;
             // instructions that not to write register file
             `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV,
+            `FUNCT2_MADD, `FUNCT2_MADDU, `FUNCT2_MSUB, `FUNCT2_MSUBU,
             `FUNCT_DIVU, `FUNCT_JR: write_reg_en <= 0;
+            `FUNCT_MOVN:    write_reg_en <= (operand_2 == 32'h0) ? 0 : 1;
+            `FUNCT_MOVZ:    write_reg_en <= (operand_2 == 32'h0) ? 1 : 0;
             default: write_reg_en <= write_reg_en_in;
         endcase
     end
@@ -167,6 +193,12 @@ module EX(
                 hilo_write_en <= 1;
                 hi_out <= mult_div_result[63:32];
                 lo_out <= mult_div_result[31:0];
+            end
+            `FUNCT2_MADD, `FUNCT2_MADDU, 
+            `FUNCT2_MSUB, `FUNCT2_MSUBU:    begin
+                hilo_write_en <= 1;
+                hi_out <= result_mult[63:32];
+                lo_out <= result_mult[31:0];
             end
             default: begin
                 hilo_write_en <= 0;

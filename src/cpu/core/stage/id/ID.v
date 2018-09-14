@@ -100,7 +100,7 @@ module ID(
                 // memory accessing
                 `OP_SB, `OP_SH, `OP_SW,
                 // r-type
-                `OP_SPECIAL: begin
+                `OP_SPECIAL, `OP_SPECIAL2: begin
                     reg_read_en_1 <= 1;
                     reg_read_en_2 <= 1;
                     reg_addr_1 <= inst_rs;
@@ -159,7 +159,8 @@ module ID(
                 `OP_ANDI, `OP_ORI, `OP_XORI, `OP_LUI,
                 // memory accessing
                 `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
-                `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
+                `OP_LHU, `OP_SB, `OP_SH, `OP_SW,
+                `OP_SPECIAL2: begin
                     operand_1 <= reg_data_1;
                 end
                 `OP_SPECIAL: begin
@@ -173,7 +174,8 @@ module ID(
                     operand_1 <= link_addr;
                 end
                 `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
-                `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
+                `OP_LHU, `OP_SB, `OP_SH, `OP_SW,
+                `OP_SPECIAL2: begin
                     operand_1 <= reg_data_1;
                 end
                 default: begin
@@ -203,7 +205,7 @@ module ID(
                 `OP_LHU, `OP_SB, `OP_SH, `OP_SW: begin
                     operand_2 <= sign_extended_imm;
                 end
-                `OP_SPECIAL: begin
+                `OP_SPECIAL, `OP_SPECIAL2: begin
                     operand_2 <= reg_data_2;
                 end
                 default: begin
@@ -227,7 +229,7 @@ module ID(
                     write_reg_en <= 1;
                     write_reg_addr <= inst_rt;
                 end
-                `OP_SPECIAL: begin
+                `OP_SPECIAL, `OP_SPECIAL2: begin
                     write_reg_en <= 1;
                     write_reg_addr <= inst_rd;
                 end
@@ -289,7 +291,7 @@ module ID(
                     branch_addr <= {addr_plus_4[31:28], jump_addr, 2'b00};
                     next_delayslot_flag_out <= 1;
                 end
-                `OP_SPECIAL: begin
+                `OP_SPECIAL, `OP_SPECIAL2: begin
                     if (inst_funct == `FUNCT_JR || inst_funct == `FUNCT_JALR) begin
                         branch_flag <= 1;
                         branch_addr <= reg_data_1;

@@ -11,8 +11,8 @@
 `define FUNCT_JALR      6'b001001
 
 // move
-`define FUNCT_MOVZ      6'b001010   // unused
-`define FUNCT_MOVN      6'b001011   // unused
+`define FUNCT_MOVZ      6'b001010
+`define FUNCT_MOVN      6'b001011
 
 // interruption
 `define FUNCT_SYSCALL   6'b001100
@@ -46,7 +46,23 @@
 `define FUNCT_SLT       6'b101010
 `define FUNCT_SLTU      6'b101011
 
+// special2 inst
+`define FUNCT_MADD      6'b000000
+`define FUNCT_MADDU     6'b000001
+`define FUNCT_MUL       6'b000010
+`define FUNCT_MSUB      6'b000100
+`define FUNCT_MSUBU     6'b000101
+`define FUNCT_CLZ       6'b100000
+`define FUNCT_CLO       6'b100001
+
 // NOTE: improper usage
+`define FUNCT2_MADD     6'b111000
+`define FUNCT2_MADDU    6'b111001
+`define FUNCT2_MUL      6'b111010
+`define FUNCT2_MSUB     6'b111011
+`define FUNCT2_MSUBU    6'b111100
+`define FUNCT2_CLZ      6'b111101
+`define FUNCT2_CLO      6'b111110
 // it's NOP because '111111' is meaningless in current MIPS ISA
 // but we can't make sure it won't be used in a future version
 `define FUNCT_NOP       6'b111111
