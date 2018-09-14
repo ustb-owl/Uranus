@@ -580,6 +580,27 @@ module ID(
                             end
                         endcase
                     end
+                    `OP_SPECIAL2: begin
+                        case (funct)
+                            `FUNCT2_CLZ, `FUNCT2_CLO,
+                            `FUNCT2_MUL,
+                            `FUNCT2_MADD, `FUNCT2_MADDU,
+                            `FUCNT2_MSUB, `FUNCT2_MSUBU: begin
+                                invalid_inst_flag <= 0;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                            default: begin
+                                invalid_inst_flag <= 1;
+                                overflow_inst_flag <= 0;
+                                syscall_flag <= 0;
+                                break_flag <= 0;
+                                eret_flag <= 0;
+                            end
+                        endcase
+                    end
                     `OP_REGIMM: begin
                         case (inst_rt)
                             `REGIMM_BLTZ, `REGIMM_BLTZAL, `REGIMM_BGEZ,
