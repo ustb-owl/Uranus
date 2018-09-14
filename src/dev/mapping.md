@@ -3,7 +3,7 @@
 ## SPI Flash
 
 * **Memory:** 0x1FC00000 ~ 0x1FCFFFFF
-<!-- * **Control Registers:** 0x1FD00000 ~ 0x1FD00FFF -->
+* **Control Registers:** 0x1FCF0000 ~ 0x1FC0000F, byte access
 
 ## UART
 
