@@ -42,7 +42,21 @@ module Top(
     inout [3:0] vga_g,
     inout [3:0] vga_b,
     output vga_hsync,
-    output vga_vsync
+    output vga_vsync,
+    // MAC
+    input mii_col,
+    input mii_crs,
+    output mii_rst_n,
+    input mii_rx_clk,
+    input mii_rx_dv,
+    input mii_rx_er,
+    input [3:0] mii_rxd,
+    input mii_tx_clk,
+    output mii_tx_en,
+    output mii_tx_er,
+    output [3:0] mii_txd,
+    output mdio_mdc,
+    inout mdio
 );
 
     // SPI
@@ -67,6 +81,12 @@ module Top(
     assign vga_g[2] = vga_green[4] ? 1'b1 : 1'bz; assign vga_g[3] = vga_green[5] ? 1'b1 : 1'bz;
     assign vga_b[0] = vga_blue[2] ? 1'b1 : 1'bz; assign vga_b[1] = vga_blue[3] ? 1'b1 : 1'bz;
     assign vga_b[2] = vga_blue[4] ? 1'b1 : 1'bz; assign vga_b[3] = vga_blue[5] ? 1'b1 : 1'bz;
+
+    // MAC
+    wire mdio_i, mdio_o, mdio_t;
+
+    IOBUF iob_mdio(.IO(mdio), .I(mdio_o), .O(mdio_i), .T(mdio_t));
+    assign mii_tx_er = 1'b0;
 
     // SoC
     SoC soc(
@@ -119,7 +139,22 @@ module Top(
         .vga_green(vga_green),
         .vga_blue(vga_blue),
         .vga_hsync(vga_hsync),
-        .vga_vsync(vga_vsync)
+        .vga_vsync(vga_vsync),
+        // MAC
+        .mii_col(mii_col),
+        .mii_crs(mii_crs),
+        .mii_rst_n(mii_rst_n),
+        .mii_rx_clk(mii_rx_clk),
+        .mii_rx_dv(mii_rx_dv),
+        .mii_rx_er(mii_rx_er),
+        .mii_rxd(mii_rxd),
+        .mii_tx_clk(mii_tx_clk),
+        .mii_tx_en(mii_tx_en),
+        .mii_txd(mii_txd),
+        .mdio_mdc(mdio_mdc),
+        .mdio_mdio_i(mdio_i),
+        .mdio_mdio_o(mdio_o),
+        .mdio_mdio_t(mdio_t)
     );
 
 endmodule // Top
