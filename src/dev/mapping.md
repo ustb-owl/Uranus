@@ -28,3 +28,11 @@
 ## GPIO
 
 * **Control Registers:** 0x1FD05000 ~ 0x1FD05FFF
+
+## MAC
+
+* **Control Registers:** 0x1FD06000 ~ 0x1FD07FFF
+
+## Interrupt Controller
+
+* **Control Registers:** 0x1FD08000 ~ 0x1FD08FFF
