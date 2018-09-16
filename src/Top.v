@@ -1,7 +1,5 @@
 `timescale 1ns / 1ps
 
-`include "debug.v"
-
 module Top(
     input clk,
     input rst,

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-`include "../../debug.v"
+`include "../debug.v"
 
 module SRAMArbiter(
     input clk,
