@@ -120,17 +120,17 @@ module EX(
             `FUNCT_JALR, `FUNCT_OR: result <= operand_1 | operand_2;
             `FUNCT_AND: result <= operand_1 & operand_2;
             `FUNCT_XOR: result <= operand_1 ^ operand_2;
-            `FUNCT_NOR: result <=  ~(operand_1 | operand_2);
+            `FUNCT_NOR: result <= ~(operand_1 | operand_2);
             // comparison
             `FUNCT_SLT, `FUNCT_SLTU: result <= operand_1_lt_operand_2;
             // arithmetic
             `FUNCT_ADD, `FUNCT_ADDU,
             `FUNCT_SUB, `FUNCT_SUBU: result <= result_sum;
             // move
-            `FUNCT_MOVN, `FUNCT_MOVZ:   result  <= operand_1;
-            `FUNCT2_CLZ, `FUNCT2_CLO:   result  <= result_counter;
+            `FUNCT_MOVN, `FUNCT_MOVZ: result <= operand_1;
+            `FUNCT2_CLZ, `FUNCT2_CLO: result <= result_counter;
             // mult
-            `FUNCT2_MUL: result  <= mult_div_result[31:0];
+            `FUNCT2_MUL: result <= mult_div_result[31:0];
             // HI & LO
             `FUNCT_MFHI: result <= hi;
             `FUNCT_MFLO: result <= lo;
@@ -157,8 +157,8 @@ module EX(
             `FUNCT_MULT, `FUNCT_MULTU, `FUNCT_DIV,
             `FUNCT2_MADD, `FUNCT2_MADDU, `FUNCT2_MSUB, `FUNCT2_MSUBU,
             `FUNCT_DIVU, `FUNCT_JR: write_reg_en <= 0;
-            `FUNCT_MOVN:    write_reg_en <= (operand_2 == 32'h0) ? 0 : 1;
-            `FUNCT_MOVZ:    write_reg_en <= (operand_2 == 32'h0) ? 1 : 0;
+            `FUNCT_MOVN: write_reg_en <= (operand_2 == 32'h0) ? 0 : 1;
+            `FUNCT_MOVZ: write_reg_en <= (operand_2 == 32'h0) ? 1 : 0;
             default: write_reg_en <= write_reg_en_in;
         endcase
     end
