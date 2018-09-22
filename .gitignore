@@ -47,3 +47,6 @@ util/*/out
 
 # PyCharm
 .idea/
+
+# documents
+*.doc
