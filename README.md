@@ -4,4 +4,10 @@
 
 # Uranus
 
-Uranus is a project of MIPS processor written by MaxXing. For testing purposes only. 
+Uranus is a project of MIPS processor written by MaxXing & USTB NSCSCC team.
+
+## License
+
+Copyright (C) 2010-2018 MaxXing.
+
+Copyright (C) 2018 USTB NSCSCC Team.
