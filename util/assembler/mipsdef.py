@@ -290,3 +290,6 @@ single_type = [
 pseudo_type = [
     'li', 'la', 'move', 'nop'
 ]
+
+# base pc address
+base_pc = 0xbfc00000

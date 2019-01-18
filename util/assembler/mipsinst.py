@@ -179,7 +179,9 @@ class JumpInstBuilder(_InstBuilder):
                 imm = tags.get(imm_str)
                 if imm is None:
                     self._raise_error(imm_str)
-            inst += imm
+                else:
+                    imm = (imm * 4) | (mipsdef.base_pc & 0x0fffffff)
+            inst += imm >> 2
         else:   # jump_type_r
             if self.opcode == 'jalr':
                 rd = self._get_reg(self.body[0])
