@@ -72,7 +72,8 @@ module InstCache #(parameter
     wire[31:0] line_data_out[`LINE_COUNT - 1:0];
 
     // generate cache lines
-    genvar i; generate
+    genvar i;
+    generate
         for (i = 0; i < `LINE_COUNT; i = i + 1) begin
             CacheLine #(
                 .ADDR_WIDTH(ADDR_WIDTH),
@@ -143,8 +144,10 @@ module InstCache #(parameter
 
     // FSM definition
     reg[1:0] state, next_state;
-    parameter kStateIdle = 0, kStateAddr = 1, kStateData = 2;
-    assign ready = state == kStateIdle;
+    parameter kStateIdle = 0, kStateAddr = 1,
+            kStateData = 2, kStateValid = 3;
+    assign ready = state == kStateIdle && line_valid_out[line_sel]
+            && line_tag_out[line_sel] == line_tag;
     assign data_out = ready ? line_data_out[line_sel] : 0;
 
     always @(posedge clk) begin
@@ -177,7 +180,10 @@ module InstCache #(parameter
                 next_state <= arready ? kStateData : kStateAddr;
             end
             kStateData: begin
-                next_state <= rlast ? kStateIdle : kStateData;
+                next_state <= rlast ? kStateValid : kStateData;
+            end
+            kStateValid: begin
+                next_state <= kStateIdle;
             end
             default: next_state <= kStateIdle;
         endcase
@@ -209,7 +215,7 @@ module InstCache #(parameter
                 kStateAddr: begin
                     line_valid_in <= 0;
                     line_tag_in <= 0;
-                    line_index_in <= 0;
+                    line_index_in <= -1;
                     line_data_in <= 0;
                     cache_write_en <= 0;
                     axi_read_addr <= addr;
@@ -229,6 +235,15 @@ module InstCache #(parameter
                         line_index_in <= line_index_in;
                         line_data_in <= 0;
                     end
+                end
+                kStateValid: begin
+                    line_valid_in <= 1;
+                    line_tag_in <= line_tag;
+                    line_index_in <= 0;
+                    line_data_in <= 0;
+                    cache_write_en <= 0;
+                    axi_read_addr <= 0;
+                    axi_read_valid <= 0;
                 end
                 default: begin
                     line_valid_in <= 0;
