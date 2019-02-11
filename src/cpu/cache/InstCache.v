@@ -17,7 +17,7 @@ module InstCache #(parameter
     input flush,
     input [ADDR_WIDTH - 1:0] addr,
     output ready,
-    output reg[31:0] data_out,
+    output [31:0] data_out,
     // AXI interface
     output [3:0]  arid,
     output [31:0] araddr,
@@ -77,7 +77,7 @@ module InstCache #(parameter
             CacheLine #(
                 .ADDR_WIDTH(ADDR_WIDTH),
                 .LINE_WIDTH(LINE_WIDTH),
-                .CACHE_WIDTH(CACHE_WIDTH),
+                .CACHE_WIDTH(CACHE_WIDTH)
             ) line (
                 .clk(clk),
                 .rst(rst && !flush),   // flush cache line
@@ -105,9 +105,9 @@ module InstCache #(parameter
     assign line_index = addr[LINE_WIDTH - 1:2];
 
     reg cache_write_en;
-    genvar i; generate
+    generate
         for (i = 0; i < `LINE_COUNT; i = i + 1) begin
-            assign line_write_en[i] = cache_write_en ? line_sel == i ? 0;
+            assign line_write_en[i] = cache_write_en ? line_sel == i : 0;
         end
     endgenerate
 
@@ -145,6 +145,7 @@ module InstCache #(parameter
     reg[1:0] state, next_state;
     parameter kStateIdle = 0, kStateAddr = 1, kStateData = 2;
     assign ready = state == kStateIdle;
+    assign data_out = ready ? line_data_out[line_sel] : 0;
 
     always @(posedge clk) begin
         if (!rst) begin
@@ -190,8 +191,6 @@ module InstCache #(parameter
             line_index_in <= 0;
             line_data_in <= 0;
             cache_write_en <= 0;
-            // output signals
-            data_out <= 0;
             // AXI
             axi_read_addr <= 0;
             axi_read_valid <= 0;
@@ -204,7 +203,6 @@ module InstCache #(parameter
                     line_index_in <= line_index;
                     line_data_in <= 0;
                     cache_write_en <= 0;
-                    data_out <= line_data_out[line_sel];
                     axi_read_addr <= 0;
                     axi_read_valid <= 0;
                 end
@@ -214,7 +212,6 @@ module InstCache #(parameter
                     line_index_in <= 0;
                     line_data_in <= 0;
                     cache_write_en <= 0;
-                    data_out <= 0;
                     axi_read_addr <= addr;
                     axi_read_valid <= 1;
                 end
@@ -222,7 +219,6 @@ module InstCache #(parameter
                     line_valid_in <= 1;
                     line_tag_in <= line_tag;
                     cache_write_en <= 1;
-                    data_out <= 0;
                     axi_read_addr <= 0;
                     axi_read_valid <= 0;
                     if (rvalid) begin
@@ -240,7 +236,6 @@ module InstCache #(parameter
                     line_index_in <= 0;
                     line_data_in <= 0;
                     cache_write_en <= 0;
-                    data_out <= 0;
                     axi_read_addr <= 0;
                     axi_read_valid <= 0;
                 end
