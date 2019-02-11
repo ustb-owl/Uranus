@@ -4,7 +4,6 @@
 
 module CacheLine #(parameter
     ADDR_WIDTH = 32,
-    DATA_WIDTH = 32,
     LINE_WIDTH = 6,         // 2^6 = 64 bytes/line
     CACHE_WIDTH = 6         // 2^6 = 64 lines
     `define INDEX_WIDTH     (LINE_WIDTH - 2)
@@ -19,17 +18,17 @@ module CacheLine #(parameter
     input [`TAG_WIDTH - 1:0] tag_in,
     input [`INDEX_WIDTH - 1:0] index_in,
     input [3:0] data_byte_en,
-    input [DATA_WIDTH - 1:0] data_in,
+    input [31:0] data_in,
     // output signals
     output valid_out,
     output dirty_out,
     output [`TAG_WIDTH - 1:0] tag_out,
-    output [DATA_WIDTH - 1:0] data_out
+    output [31:0] data_out
 );
 
     reg valid, dirty;
     reg[`TAG_WIDTH - 1:0] tag;
-    reg[DATA_WIDTH - 1:0] data[2 ** `INDEX_WIDTH - 1:0];
+    reg[31:0] data[2 ** `INDEX_WIDTH - 1:0];
 
     assign valid_out = valid;
     assign dirty_out = valid ? dirty : 0;
