@@ -101,9 +101,12 @@ module InstCache #(parameter
     wire[`TAG_WIDTH - 1:0] line_tag;
     wire[CACHE_WIDTH - 1:0] line_sel;
     wire[`INDEX_WIDTH - 1:0] line_index;
+    wire is_cache_hit;
     assign line_tag = addr[ADDR_WIDTH - 1:LINE_WIDTH + CACHE_WIDTH];
     assign line_sel = addr[LINE_WIDTH + CACHE_WIDTH - 1:LINE_WIDTH];
     assign line_index = addr[LINE_WIDTH - 1:2];
+    assign is_cache_hit = line_valid_out[line_sel]
+            && line_tag_out[line_sel] == line_tag;
 
     reg cache_write_en;
     generate
@@ -146,8 +149,7 @@ module InstCache #(parameter
     reg[1:0] state, next_state;
     parameter kStateIdle = 0, kStateAddr = 1,
             kStateData = 2, kStateValid = 3;
-    assign ready = state == kStateIdle && line_valid_out[line_sel]
-            && line_tag_out[line_sel] == line_tag;
+    assign ready = state == kStateIdle && is_cache_hit;
     assign data_out = ready ? line_data_out[line_sel] : 0;
 
     always @(posedge clk) begin
@@ -166,8 +168,7 @@ module InstCache #(parameter
                     // idle
                     next_state <= kStateIdle;
                 end
-                else if (line_valid_out[line_sel]
-                        && line_tag_out[line_sel] == line_tag) begin
+                else if (is_cache_hit) begin
                     // read, and cache hit
                     next_state <= kStateIdle;
                 end
