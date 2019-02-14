@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-// cache: direct mapped, read-only
+// instruction cache: direct mapped, read-only
 
 module InstCache #(parameter
     ADDR_WIDTH = 32,
@@ -259,4 +259,4 @@ module InstCache #(parameter
         end
     end
 
-endmodule // CacheL1
+endmodule // InstCache
