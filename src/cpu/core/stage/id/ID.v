@@ -173,11 +173,6 @@ module ID(
                 `OP_JAL: begin
                     operand_1 <= link_addr;
                 end
-                `OP_LB, `OP_LH, `OP_LW, `OP_LBU,
-                `OP_LHU, `OP_SB, `OP_SH, `OP_SW,
-                `OP_SPECIAL2: begin
-                    operand_1 <= reg_data_1;
-                end
                 default: begin
                     operand_1 <= 0;
                 end
