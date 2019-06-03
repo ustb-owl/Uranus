@@ -2,6 +2,11 @@
 
 // instruction cache: direct mapped, read-only
 
+// TODO:
+// this module is unfinished! (hit_invalidate & addr_inv part)
+// for reference ONLY!
+// other parts have been already tested
+
 module InstCache #(parameter
     ADDR_WIDTH = 32,
     LINE_WIDTH = 6,         // 2^6 = 64 bytes/line
@@ -14,8 +19,10 @@ module InstCache #(parameter
     input rst,
     // cache control
     input read_en,
-    input flush,
-    input [ADDR_WIDTH - 1:0] addr,
+    input flush,   // TODO: remove?
+    input hit_invalidate,
+    input [ADDR_WIDTH - 1:0] addr_read,
+    input [ADDR_WIDTH - 1:0] addr_inv,
     output ready,
     output [31:0] data_out,
     // AXI interface
@@ -102,9 +109,9 @@ module InstCache #(parameter
     wire[CACHE_WIDTH - 1:0] line_sel;
     wire[`INDEX_WIDTH - 1:0] line_index;
     wire is_cache_hit;
-    assign line_tag = addr[ADDR_WIDTH - 1:LINE_WIDTH + CACHE_WIDTH];
-    assign line_sel = addr[LINE_WIDTH + CACHE_WIDTH - 1:LINE_WIDTH];
-    assign line_index = addr[LINE_WIDTH - 1:2];
+    assign line_tag = addr_read[ADDR_WIDTH - 1:LINE_WIDTH + CACHE_WIDTH];
+    assign line_sel = addr_read[LINE_WIDTH + CACHE_WIDTH - 1:LINE_WIDTH];
+    assign line_index = addr_read[LINE_WIDTH - 1:2];
     assign is_cache_hit = line_valid_out[line_sel]
             && line_tag_out[line_sel] == line_tag;
 
@@ -148,7 +155,7 @@ module InstCache #(parameter
     // FSM definition
     reg[1:0] state, next_state;
     parameter kStateIdle = 0, kStateAddr = 1,
-            kStateData = 2, kStateValid = 3;
+            kStateData = 2, kStateUpdate = 3;
     assign ready = state == kStateIdle && is_cache_hit;
     assign data_out = ready ? line_data_out[line_sel] : 0;
 
@@ -181,9 +188,9 @@ module InstCache #(parameter
                 next_state <= arready ? kStateData : kStateAddr;
             end
             kStateData: begin
-                next_state <= rlast ? kStateValid : kStateData;
+                next_state <= rlast ? kStateUpdate : kStateData;
             end
-            kStateValid: begin
+            kStateUpdate: begin
                 next_state <= kStateIdle;
             end
             default: next_state <= kStateIdle;
@@ -209,7 +216,8 @@ module InstCache #(parameter
                     line_tag_in <= 0;
                     line_index_in <= line_index;
                     line_data_in <= 0;
-                    cache_write_en <= 0;
+                    // TODO: test
+                    cache_write_en <= hit_invalidate && is_cache_hit;
                     axi_read_addr <= 0;
                     axi_read_valid <= 0;
                 end
@@ -219,7 +227,7 @@ module InstCache #(parameter
                     line_index_in <= -1;
                     line_data_in <= 0;
                     cache_write_en <= 0;
-                    axi_read_addr <= addr;
+                    axi_read_addr <= addr_read;
                     axi_read_valid <= 1;
                 end
                 kStateData: begin
@@ -237,7 +245,7 @@ module InstCache #(parameter
                         line_data_in <= 0;
                     end
                 end
-                kStateValid: begin
+                kStateUpdate: begin
                     line_valid_in <= 1;
                     line_tag_in <= line_tag;
                     line_index_in <= 0;
