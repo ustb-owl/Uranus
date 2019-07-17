@@ -451,6 +451,7 @@ module ID(
     always @(*) begin
         if (!rst) begin
             cp0_write_flag <= 0;
+            cp0_read_flag <= 0;
             cp0_addr <= 0;
         end
         else begin
