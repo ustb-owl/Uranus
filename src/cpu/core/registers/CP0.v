@@ -163,6 +163,7 @@ module CP0(
                 `CP0_REG_CAUSE: data_out <= reg_cause;
                 `CP0_REG_EPC: data_out <= reg_epc;
                 `CP0_REG_PRID: data_out <= reg_prid;
+                `CP0_REG_EBASE: data_out <= reg_ebase;
                 `CP0_REG_CONFIG: data_out <= reg_config;
                 default: data_out <= 0;
             endcase
