@@ -41,7 +41,7 @@ module RegReadProxy(
 
     // generate output read_data_1
     always @(*) begin
-        if (read_en_1) begin
+        if (read_en_1 && read_addr_1) begin
             if (reg_write_en_from_ex
                     && read_addr_1 == reg_write_addr_from_ex) begin
                 read_data_1 <= data_from_ex;
@@ -61,7 +61,7 @@ module RegReadProxy(
 
     // generate output read_data_2
     always @(*) begin
-        if (read_en_2) begin
+        if (read_en_2 && read_addr_2) begin
             if (reg_write_en_from_ex
                     && read_addr_2 == reg_write_addr_from_ex) begin
                 read_data_2 <= data_from_ex;
